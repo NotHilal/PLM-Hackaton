@@ -1,0 +1,8 @@
+<p>sidebar works!</p>
+
+<div class="sidebar" (drop)="onFileDropped($event)" (dragover)="onDragOver($event)">
+  <h3>Drag and Drop Files Here</h3>
+  <ul>
+    <li *ngFor="let file of files">{{ file.name }}</li>
+  </ul>
+</div>

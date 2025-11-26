@@ -1,0 +1,16 @@
+.main-display {
+  width: 70%;
+  height: 100vh;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.diagram-placeholder {
+  width: 100%;
+  height: 80%;
+  border: 2px dashed #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9f9f9;
+}
