@@ -1,1 +1,2 @@
-# PLM-Hackaton
+# Hackaton-PLM
+PLM AI Process Mining
