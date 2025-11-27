@@ -85,13 +85,13 @@ class KPICalculator:
             return self._mock_erp_kpis()
 
     def _mock_erp_kpis(self) -> Dict[str, Any]:
-        """Mock ERP KPIs"""
+        """Mock ERP KPIs - deterministic fallback"""
         return {
-            'criticite_moyenne': round(np.random.uniform(2.0, 3.5), 1),
-            'cout_total': round(np.random.uniform(100000, 150000), 2),
-            'masse_totale': round(np.random.uniform(3000, 4000), 2),
-            'delai_moyen_fournisseur': round(np.random.uniform(10, 15), 1),
-            'temps_cao_total': round(np.random.uniform(300, 400), 1)
+            'criticite_moyenne': 2.8,
+            'cout_total': 125000.0,
+            'masse_totale': 3500.0,
+            'delai_moyen_fournisseur': 12.5,
+            'temps_cao_total': 350.0
         }
 
     # ==================== MES KPIs ====================
@@ -197,57 +197,93 @@ class KPICalculator:
             return self._mock_plm_kpis()
 
     def _mock_plm_kpis(self) -> Dict[str, Any]:
-        """Mock PLM KPIs"""
-        experts = np.random.randint(30, 40)
+        """Mock PLM KPIs - deterministic fallback"""
         return {
-            'cout_mo_total': round(np.random.uniform(75000, 95000), 2),
-            'score_competence': round(np.random.uniform(7.0, 8.5), 1),
+            'cout_mo_total': 85000.0,
+            'score_competence': 7.8,
             'seniority_mix': {
-                'experts': experts,
-                'juniors': 100 - experts
+                'experts': 35,
+                'juniors': 65
             }
         }
 
     # ==================== CROSS KPIs ====================
 
     def calculate_cross_kpis(self) -> Dict[str, Any]:
-        """Calculate cross-functional KPIs"""
+        """Calculate cross-functional KPIs - deterministic"""
         return {
-            'impact_aleas': round(np.random.uniform(10, 15), 1),
-            'cout_retard': round(np.random.uniform(12000, 18000), 2)
+            'impact_aleas': 12.5,
+            'cout_retard': 15000.0
         }
 
     # ==================== WORKFLOW KPIs ====================
 
     def calculate_workflow_kpis(self) -> Dict[str, Any]:
-        """Calculate workflow KPIs"""
+        """Calculate workflow KPIs - deterministic"""
         disponibilite = {}
         for i in range(1, 41):
-            disponibilite[f'Poste_{i}'] = round(np.random.uniform(0.65, 0.95), 2)
+            # Deterministic availability based on station number
+            disponibilite[f'Poste_{i}'] = round(0.75 + (i % 10) * 0.02, 2)
 
         return {
-            'bottleneck_index': round(np.random.uniform(0.65, 0.85), 2),
-            'cycle_time_global': round(np.random.uniform(5.0, 6.5), 1),
+            'bottleneck_index': 0.75,
+            'cycle_time_global': 5.8,
             'disponibilite_par_poste': disponibilite
         }
 
     # ==================== PROCESS MINING KPIs ====================
 
     def calculate_process_mining_kpis(self) -> Dict[str, Any]:
-        """Calculate process mining KPIs (WIP, Lead Time, etc.)"""
-        if self.process_data is None:
+        """Calculate process mining KPIs from real MES data"""
+        # Use MES data instead of process_data
+        if self.mes_data is None:
             return self._mock_process_mining_kpis()
 
         try:
-            df = self.process_data
-            # Expect process_data to contain case/time information. We'll compute simple aggregates
-            num_cols = self._numeric_columns(df)
+            df = self.mes_data
 
-            total_wip = int(len(df))
-            avg_lead = round(float(df[num_cols[0]].dropna().astype(float).mean()) if num_cols else 0, 1)
-            rework_rate = round(float(df[num_cols[1]].dropna().astype(float).mean()) if len(num_cols) > 1 else round(self._rng.uniform(5, 10), 1), 1)
-            throughput = round(float(df[num_cols[2]].dropna().astype(float).mean()) if len(num_cols) > 2 else round(self._rng.uniform(15, 19), 1), 1)
-            bottleneck = df.columns[0] if df is not None and len(df.columns) > 0 else 'Assemblage'
+            # Calculate metrics from MES data
+            # Total WIP = number of active cases
+            total_wip = len(df)
+
+            # Average lead time from 'Temps Réel' column
+            temps_reel_col = self._col_or_none(df, ['Temps Réel', 'Temps_Reel', 'temps_reel'])
+            if temps_reel_col:
+                avg_lead = round(float(df[temps_reel_col].dropna().astype(float).mean()), 1)
+            else:
+                avg_lead = 5.5
+
+            # Rework rate from 'Aléas Industriels' (percentage of rows with issues)
+            aleas_col = self._col_or_none(df, ['Aléas Industriels', 'Aleas_Industriels', 'aleas'])
+            if aleas_col:
+                rework_rate = round((df[aleas_col].notna().sum() / len(df)) * 100, 1)
+            else:
+                rework_rate = 8.5
+
+            # Throughput = average pieces per hour
+            pieces_col = self._col_or_none(df, ['Nombre pièces', 'Nombre_pieces', 'nombre_pieces'])
+            if pieces_col:
+                throughput = round(float(df[pieces_col].dropna().astype(float).mean()), 1)
+            else:
+                throughput = 17.0
+
+            # Find bottleneck - operation with highest average time
+            poste_col = self._col_or_none(df, ['Poste', 'poste', 'Nom'])
+            if poste_col and temps_reel_col:
+                bottleneck_row = df.groupby(poste_col)[temps_reel_col].mean().idxmax()
+                bottleneck = str(bottleneck_row) if pd.notna(bottleneck_row) else 'Assemblage'
+            else:
+                bottleneck = 'Assemblage'
+
+            # Total cases
+            total_cases = len(df)
+
+            # Average cycle time
+            temps_prevu_col = self._col_or_none(df, ['Temps Prévu', 'Temps_Prevu', 'temps_prevu'])
+            if temps_prevu_col:
+                avg_cycle = round(float(df[temps_prevu_col].dropna().astype(float).mean()), 1)
+            else:
+                avg_cycle = 22.5
 
             return {
                 'totalWIP': total_wip,
@@ -257,44 +293,114 @@ class KPICalculator:
                 'bottleneckOperation': bottleneck,
                 'deltaWIP': -15,
                 'deltaLeadTime': -22,
-                'totalCases': int(len(df)),
-                'avgCycleTime': round(float(df[num_cols[0]].dropna().astype(float).mean()) if num_cols else round(self._rng.uniform(20, 25), 1), 1)
+                'totalCases': total_cases,
+                'avgCycleTime': avg_cycle
             }
         except Exception as e:
-            print(f"Error calculating process mining KPIs from dataframe: {e}")
+            print(f"Error calculating process mining KPIs from MES data: {e}")
             return self._mock_process_mining_kpis()
 
     def _mock_process_mining_kpis(self) -> Dict[str, Any]:
-        """Mock process mining KPIs"""
+        """Mock process mining KPIs - deterministic fallback"""
         return {
-            'totalWIP': np.random.randint(70, 85),
-            'avgLeadTime': round(np.random.uniform(5.0, 6.0), 1),
-            'reworkRate': round(np.random.uniform(7.5, 9.5), 1),
-            'throughput': round(np.random.uniform(15, 19), 1),
+            'totalWIP': 75,  # Fixed value
+            'avgLeadTime': 5.4,  # Fixed value
+            'reworkRate': 7.8,  # Fixed value
+            'throughput': 16.3,  # Fixed value
             'bottleneckOperation': 'Assemblage',
             'deltaWIP': -15,
             'deltaLeadTime': -22,
             'totalCases': 500,
-            'avgCycleTime': round(np.random.uniform(20, 25), 1)
+            'avgCycleTime': 22.5  # Fixed value
         }
 
     def calculate_operation_summaries(self) -> List[Dict[str, Any]]:
-        """Calculate operation summaries for process mining"""
+        """Calculate operation summaries from real MES data"""
+        if self.mes_data is None:
+            # Fallback to deterministic mock data
+            return self._mock_operation_summaries()
+
+        try:
+            df = self.mes_data
+
+            # Get column names
+            poste_col = self._col_or_none(df, ['Poste', 'poste'])
+            nom_col = self._col_or_none(df, ['Nom', 'nom'])
+            temps_reel_col = self._col_or_none(df, ['Temps Réel', 'Temps_Reel', 'temps_reel'])
+            temps_prevu_col = self._col_or_none(df, ['Temps Prévu', 'Temps_Prevu', 'temps_prevu'])
+            pieces_col = self._col_or_none(df, ['Nombre pièces', 'Nombre_pieces', 'nombre_pieces'])
+            aleas_col = self._col_or_none(df, ['Aléas Industriels', 'Aleas_Industriels', 'aleas'])
+
+            # Group by operation name
+            if nom_col is None:
+                return self._mock_operation_summaries()
+
+            summaries = []
+            for operation in df[nom_col].unique():
+                op_data = df[df[nom_col] == operation]
+
+                # Calculate metrics
+                wip = len(op_data)
+
+                avg_cycle = round(float(op_data[temps_prevu_col].mean()), 1) if temps_prevu_col else 22.0
+                avg_real = round(float(op_data[temps_reel_col].mean()), 1) if temps_reel_col else 25.0
+
+                # Waiting time = real time - planned time
+                avg_waiting = round(max(0, avg_real - avg_cycle), 1)
+
+                case_count = len(op_data)
+
+                # Rework rate = % of cases with issues
+                if aleas_col:
+                    rework = round((op_data[aleas_col].notna().sum() / len(op_data)) * 100, 1)
+                else:
+                    rework = 0.0
+
+                throughput_val = round(float(op_data[pieces_col].mean()), 1) if pieces_col else 15.0
+
+                # Determine bottleneck severity based on waiting time
+                if avg_waiting > 10:
+                    severity = 'high'
+                elif avg_waiting > 5:
+                    severity = 'medium'
+                elif avg_waiting > 2:
+                    severity = 'low'
+                else:
+                    severity = 'none'
+
+                summaries.append({
+                    'operation': str(operation),
+                    'currentWIP': wip,
+                    'avgCycleTime': avg_cycle,
+                    'avgWaitingTime': avg_waiting,
+                    'caseCount': case_count,
+                    'reworkRate': rework,
+                    'throughput': throughput_val,
+                    'bottleneckSeverity': severity
+                })
+
+            return summaries
+        except Exception as e:
+            print(f"Error calculating operation summaries from MES data: {e}")
+            return self._mock_operation_summaries()
+
+    def _mock_operation_summaries(self) -> List[Dict[str, Any]]:
+        """Deterministic mock operation summaries"""
         operations = ['Découpe', 'Perçage', 'Peinture', 'Assemblage', 'Contrôle']
         summaries = []
 
-        for op in operations:
+        for i, op in enumerate(operations):
             is_bottleneck = (op == 'Assemblage')
 
             summaries.append({
                 'operation': op,
-                'currentWIP': np.random.randint(10, 20),
-                'avgCycleTime': round(np.random.uniform(15, 30), 1),
-                'avgWaitingTime': round(np.random.uniform(10, 35), 1) if not is_bottleneck else 35.0,
-                'caseCount': np.random.randint(400, 500),
-                'reworkRate': round(np.random.uniform(5, 18), 1),
-                'throughput': round(np.random.uniform(15, 20), 1),
-                'bottleneckSeverity': 'high' if is_bottleneck else np.random.choice(['none', 'low', 'medium'])
+                'currentWIP': 12 + i * 2,  # Deterministic
+                'avgCycleTime': round(18.0 + i * 3.0, 1),  # Deterministic
+                'avgWaitingTime': 30.0 if is_bottleneck else round(12.0 + i * 2.5, 1),
+                'caseCount': 450 + i * 10,  # Deterministic
+                'reworkRate': round(8.0 + i * 1.5, 1),  # Deterministic
+                'throughput': round(16.0 + i * 0.5, 1),  # Deterministic
+                'bottleneckSeverity': 'high' if is_bottleneck else (['none', 'low', 'medium', 'low', 'none'][i])
             })
 
         return summaries
