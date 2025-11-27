@@ -1,0 +1,196 @@
+<div class="python-overview-container">
+  <!-- Header -->
+  <div class="page-header mb-xl">
+    <div class="header-content">
+      <h2 class="page-title">Process Mining Overview</h2>
+      <p class="page-subtitle">Données en temps réel depuis Python Backend</p>
+    </div>
+    <button class="btn btn-primary" (click)="refresh()" [disabled]="loading">
+      {{ loading ? 'Chargement...' : 'Actualiser' }}
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Chargement des données depuis Python...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="card error-card">
+    <h3>❌ Erreur</h3>
+    <p>{{ error }}</p>
+    <button class="btn btn-primary mt-md" (click)="refresh()">Réessayer</button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error && processMiningKPIs">
+    <!-- KPI Header Section -->
+    <div class="kpi-header grid grid-cols-4 mb-xl">
+      <!-- Total WIP Card -->
+      <div class="kpi-card">
+        <div class="kpi-label">Total WIP</div>
+        <div class="kpi-value">{{ processMiningKPIs.totalWIP }}</div>
+        <div class="kpi-delta" [ngClass]="getDeltaClass(processMiningKPIs.deltaWIP)">
+          {{ formatDelta(processMiningKPIs.deltaWIP) }}
+        </div>
+      </div>
+
+      <!-- Average Lead Time Card -->
+      <div class="kpi-card">
+        <div class="kpi-label">Délai Moyen</div>
+        <div class="kpi-value">{{ processMiningKPIs.avgLeadTime.toFixed(1) }}h</div>
+        <div class="kpi-delta" [ngClass]="getDeltaClass(processMiningKPIs.deltaLeadTime)">
+          {{ formatDelta(processMiningKPIs.deltaLeadTime) }}
+        </div>
+      </div>
+
+      <!-- Rework Rate Card -->
+      <div class="kpi-card">
+        <div class="kpi-label">Taux de Reprise</div>
+        <div class="kpi-value">{{ processMiningKPIs.reworkRate.toFixed(1) }}%</div>
+        <div class="badge" [ngClass]="processMiningKPIs.reworkRate > 10 ? 'badge-error' : 'badge-success'">
+          {{ processMiningKPIs.reworkRate > 10 ? 'Élevé' : 'Normal' }}
+        </div>
+      </div>
+
+      <!-- Throughput Card -->
+      <div class="kpi-card">
+        <div class="kpi-label">Débit</div>
+        <div class="kpi-value">{{ processMiningKPIs.throughput.toFixed(1) }}</div>
+        <div class="text-muted" style="font-size: 0.875rem;">cas/jour</div>
+      </div>
+    </div>
+
+    <!-- Bottleneck Info Bar -->
+    <div class="card mb-xl" *ngIf="processMiningKPIs.bottleneckOperation">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-muted">Goulot Principal Identifié:</span>
+          <strong class="ml-sm" style="font-size: 1.1rem; color: var(--text-primary);">
+            {{ processMiningKPIs.bottleneckOperation }}
+          </strong>
+        </div>
+        <span class="badge badge-error">Critique</span>
+      </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="grid grid-cols-2 mb-xl">
+      <!-- WIP by Operation Chart -->
+      <div class="chart-container">
+        <div class="chart-title">Work in Progress par Opération</div>
+        <ngx-charts-bar-vertical
+          [view]="view"
+          [results]="wipChartData"
+          [xAxis]="showXAxis"
+          [yAxis]="showYAxis"
+          [legend]="false"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          [xAxisLabel]="'Opération'"
+          [yAxisLabel]="'WIP Count'"
+          [scheme]="colorScheme"
+          [gradient]="true"
+          [roundEdges]="true">
+        </ngx-charts-bar-vertical>
+      </div>
+
+      <!-- Cycle vs Waiting Time Chart -->
+      <div class="chart-container">
+        <div class="chart-title">Temps de Cycle vs Temps d'Attente</div>
+        <ngx-charts-bar-vertical-stacked
+          [view]="view"
+          [results]="cycleWaitingChartData"
+          [xAxis]="showXAxis"
+          [yAxis]="showYAxis"
+          [legend]="true"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          [xAxisLabel]="'Opération'"
+          [yAxisLabel]="'Temps (minutes)'"
+          [scheme]="colorScheme">
+        </ngx-charts-bar-vertical-stacked>
+      </div>
+
+      <!-- Rework Rate Chart -->
+      <div class="chart-container">
+        <div class="chart-title">Taux de Reprise par Opération</div>
+        <ngx-charts-bar-vertical
+          [view]="view"
+          [results]="reworkChartData"
+          [xAxis]="showXAxis"
+          [yAxis]="showYAxis"
+          [legend]="false"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          [xAxisLabel]="'Opération'"
+          [yAxisLabel]="'Taux (%)'"
+          [scheme]="colorScheme"
+          [gradient]="true"
+          [roundEdges]="true">
+        </ngx-charts-bar-vertical>
+      </div>
+    </div>
+
+    <!-- Operation Summary Table -->
+    <div class="card mt-xl">
+      <div class="card-header">Détails des Opérations (Données Python)</div>
+      <div class="card-body">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Opération</th>
+              <th>WIP</th>
+              <th>Temps Cycle Moy.</th>
+              <th>Temps Attente Moy.</th>
+              <th>Nombre de Cas</th>
+              <th>Taux Reprise</th>
+              <th>Débit</th>
+              <th>Goulot</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let op of operations">
+              <td><strong>{{ op.operation }}</strong></td>
+              <td>{{ op.currentWIP }}</td>
+              <td>{{ op.avgCycleTime.toFixed(1) }} min</td>
+              <td>{{ op.avgWaitingTime.toFixed(1) }} min</td>
+              <td>{{ op.caseCount }}</td>
+              <td>
+                <span [ngClass]="{
+                  'text-error': op.reworkRate > 10,
+                  'text-warning': op.reworkRate > 5 && op.reworkRate <= 10,
+                  'text-success': op.reworkRate <= 5
+                }">
+                  {{ op.reworkRate.toFixed(1) }}%
+                </span>
+              </td>
+              <td>{{ op.throughput.toFixed(1) }}/jour</td>
+              <td>
+                <span
+                  class="badge"
+                  [ngClass]="getSeverityBadgeClass(op.bottleneckSeverity)">
+                  {{ op.bottleneckSeverity }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Backend Info -->
+    <div class="card mt-xl" style="background: rgba(59, 130, 246, 0.1); border-color: var(--primary-blue-light);">
+      <div class="flex items-center gap-md">
+        <span style="font-size: 2rem;">🐍</span>
+        <div>
+          <strong style="color: var(--primary-blue-light);">Backend Python Actif</strong>
+          <p class="text-muted" style="font-size: 0.875rem; margin-top: 0.25rem;">
+            Toutes les données sont calculées par le backend Python et mises à jour en temps réel.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

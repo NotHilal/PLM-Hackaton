@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(venvScriptspython.exe -c \"import pandas as pd; import os; print(''Pandas version:'', pd.__version__)\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

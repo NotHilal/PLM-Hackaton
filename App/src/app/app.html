@@ -22,12 +22,30 @@
     <!-- Sidebar Navigation -->
     <aside class="app-sidenav" [class.open]="sidenavOpen">
       <nav class="sidenav-menu">
+        <!-- Python-powered pages -->
+        <a
+          class="nav-item"
+          [class.active]="activeRoute === 'python-overview'"
+          (click)="navigate('python-overview')">
+          <span class="nav-icon">🐍</span>
+          <span class="nav-label">Overview</span>
+        </a>
+        <a
+          class="nav-item"
+          [class.active]="activeRoute === 'python-insights'"
+          (click)="navigate('python-insights')">
+          <span class="nav-icon">🤖</span>
+          <span class="nav-label">AI Insights</span>
+        </a>
+
+        <!-- Optionnel: TypeScript versions (cachées par défaut) -->
+        <!-- Décommenter si besoin de comparer
         <a
           class="nav-item"
           [class.active]="activeRoute === 'overview'"
           (click)="navigate('overview')">
           <span class="nav-icon">📊</span>
-          <span class="nav-label">Overview</span>
+          <span class="nav-label">Overview (TS)</span>
         </a>
         <a
           class="nav-item"
@@ -41,8 +59,9 @@
           [class.active]="activeRoute === 'insights'"
           (click)="navigate('insights')">
           <span class="nav-icon">💡</span>
-          <span class="nav-label">Insights</span>
+          <span class="nav-label">Insights (TS)</span>
         </a>
+        -->
         <a
           class="nav-item"
           [class.active]="activeRoute === 'data'"
@@ -64,8 +83,10 @@
     <main class="app-content">
       <!-- Dynamic Content Based on Active Route -->
       <app-overview-tab *ngIf="activeRoute === 'overview'"></app-overview-tab>
+      <app-python-overview *ngIf="activeRoute === 'python-overview'"></app-python-overview>
       <app-analytics-tab *ngIf="activeRoute === 'analytics'"></app-analytics-tab>
       <app-insights-tab *ngIf="activeRoute === 'insights'"></app-insights-tab>
+      <app-python-insights *ngIf="activeRoute === 'python-insights'"></app-python-insights>
       <app-data-upload-tab *ngIf="activeRoute === 'data'"></app-data-upload-tab>
       <app-test-backend *ngIf="activeRoute === 'test'"></app-test-backend>
     </main>

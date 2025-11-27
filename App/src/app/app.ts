@@ -6,8 +6,10 @@ import { AnalyticsTabComponent } from './analytics-tab/analytics-tab';
 import { InsightsTabComponent } from './insights-tab/insights-tab';
 import { DataUploadTabComponent } from './data-upload-tab/data-upload';
 import { TestBackendComponent } from './test-backend/test-backend.component';
+import { PythonOverviewComponent } from './python-overview/python-overview.component';
+import { PythonInsightsComponent } from './python-insights/python-insights.component';
 
-type RouteType = 'overview' | 'analytics' | 'insights' | 'data' | 'test';
+type RouteType = 'overview' | 'analytics' | 'insights' | 'data' | 'test' | 'python-overview' | 'python-insights';
 
 @Component({
   selector: 'app-root',
@@ -19,13 +21,15 @@ type RouteType = 'overview' | 'analytics' | 'insights' | 'data' | 'test';
     AnalyticsTabComponent,
     InsightsTabComponent,
     DataUploadTabComponent,
-    TestBackendComponent
+    TestBackendComponent,
+    PythonOverviewComponent,
+    PythonInsightsComponent
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })
 export class App {
-  activeRoute: RouteType = 'overview';
+  activeRoute: RouteType = 'python-overview'; // Start with Python version
   sidenavOpen = true;
 
   /**
