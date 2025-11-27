@@ -30,7 +30,7 @@
   margin: 0;
   flex-grow: 1;
   overflow-y: auto;
-  max-height: calc(100vh - 8rem);
+  max-height: calc(100vh - 13rem);
   scrollbar-width: thin;
   scrollbar-color: #007bff #f0f4f8;
 }

@@ -28,7 +28,7 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: #007bff #f0f4f8;
-  max-height: calc(100vh - 8rem);
+  max-height: calc(100vh - 13rem);
 }
 
 .placeholder {
