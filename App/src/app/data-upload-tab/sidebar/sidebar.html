@@ -1,0 +1,27 @@
+<div class="sidebar" (dragover)="onDragOver($event)" (drop)="onFileDropped($event)">
+  <h2 class="list-title">Fichiers</h2>
+  <div class="file-list">
+    <p *ngIf="files().length === 0" class="placeholder">Déposez vos fichiers ici 📁</p>
+    <ul>
+      <li *ngFor="let item of files(); let i = index" class="file-item">
+        <span class="file-icon">{{ item.file.name.endsWith('.xlsx') ? '📊' : '📄' }}</span>
+        <div class="file-info">
+          <span class="file-name">{{ item.file.name }}</span>
+          <span class="file-size">({{ formatSize(item.file.size) }})</span>
+          <ng-container *ngIf="item.loading; else loadedContent">
+            <div class="loading-spinner">⌛</div>
+          </ng-container>
+          <ng-template #loadedContent>
+            <div *ngIf="item.preview"  class="import-buttons">
+              <button class="import-btn employees" (click)="importAsEmployees(i)">Importer comme Employés</button>
+              <button class="import-btn tasks" (click)="importAsTasks(i)">Importer comme Tâches</button>
+              <button class="import-btn components" (click)="importAsComponents(i)">Importer comme Composants</button>
+            </div>
+            <span *ngIf="!item.preview" class="file-error">Erreur de lecture du contenu</span>
+          </ng-template>
+        </div>
+        <button class="delete-btn" (click)="removeFile(i)">✖</button>
+      </li>
+    </ul>
+  </div>
+</div>

@@ -1,0 +1,9 @@
+.data-upload-tab-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 2rem;
+  background: #fafbfc;
+  height: 100%;
+  min-height: 0;
+}

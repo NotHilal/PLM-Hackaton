@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 export interface UploadedFile {
@@ -65,6 +65,10 @@ export interface KPIData {
   providedIn: 'root'
 })
 export class DataService {
+  employees = signal<any[]>([]);
+  tasks = signal<any[]>([]);
+  components = signal<any[]>([]);
+
   private documentsSubject = new BehaviorSubject<UploadedFile[]>([]);
   private selectedDocumentSubject = new BehaviorSubject<UploadedFile | null>(null);
   private graphDataSubject = new BehaviorSubject<GraphData>(this.getMockGraphData());

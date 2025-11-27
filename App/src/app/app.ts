@@ -4,6 +4,7 @@ import { RouterOutlet } from '@angular/router';
 import { OverviewTabComponent } from './overview-tab/overview-tab';
 import { AnalyticsTabComponent } from './analytics-tab/analytics-tab';
 import { InsightsTabComponent } from './insights-tab/insights-tab';
+import { DataUploadTabComponent } from './data-upload-tab/data-upload';
 
 type RouteType = 'overview' | 'analytics' | 'insights' | 'data';
 
@@ -15,7 +16,8 @@ type RouteType = 'overview' | 'analytics' | 'insights' | 'data';
     RouterOutlet,
     OverviewTabComponent,
     AnalyticsTabComponent,
-    InsightsTabComponent
+    InsightsTabComponent,
+    DataUploadTabComponent
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css']

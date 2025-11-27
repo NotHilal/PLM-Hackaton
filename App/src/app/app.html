@@ -59,10 +59,7 @@
       <app-overview-tab *ngIf="activeRoute === 'overview'"></app-overview-tab>
       <app-analytics-tab *ngIf="activeRoute === 'analytics'"></app-analytics-tab>
       <app-insights-tab *ngIf="activeRoute === 'insights'"></app-insights-tab>
-      <div *ngIf="activeRoute === 'data'" class="data-placeholder">
-        <h2>Data Upload Page</h2>
-        <p>Coming soon: Excel/CSV file upload and column mapping</p>
-      </div>
+      <app-data-upload-tab *ngIf="activeRoute === 'data'"></app-data-upload-tab>
     </main>
   </div>
 </div>

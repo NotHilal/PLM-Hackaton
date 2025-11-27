@@ -1,0 +1,36 @@
+<div class="employee-sidebar">
+  <h2 class="list-title">Employés</h2>
+  <div class="employee-list">
+    <p *ngIf="dataService.employees().length === 0" class="placeholder">Aucun employé chargé</p>
+    <ul>
+      <li *ngFor="let emp of dataService.employees()" class="employee-item" (dblclick)="openPopup(emp)">
+        <div class="employee-info">
+          <span class="employee-name">{{ emp['Prénom'] }} {{ emp['Nom'] }}</span>
+          <span class="employee-qualif">{{ emp['Qualification'] }}</span>
+          <span class="employee-poste">{{ emp['Poste de montage'] }}</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Popup pour détails employé -->
+  <div *ngIf="selectedEmployee()" class="popup-overlay" (click)="closePopup()">
+    <div class="popup-content" (click)="$event.stopPropagation()">
+      <button class="close-btn" (click)="closePopup()">✖</button>
+      <h3>{{ selectedEmployee()['Prénom'] }} {{ selectedEmployee()['Nom'] }}</h3>
+      <dl>
+        <dt>Matricule</dt><dd>{{ selectedEmployee()['Matricule'] }}</dd>
+        <dt>Âge</dt><dd>{{ selectedEmployee()['Âge'] }}</dd>
+        <dt>Qualification</dt><dd>{{ selectedEmployee()['Qualification'] }}</dd>
+        <dt>Poste de montage</dt><dd>{{ selectedEmployee()['Poste de montage'] }}</dd>
+        <dt>Description du poste</dt><dd>{{ selectedEmployee()['Description du poste'] }}</dd>
+        <dt>Compétences</dt><dd>{{ selectedEmployee()['Compétences'] }}</dd>
+        <dt>Habilitations</dt><dd>{{ selectedEmployee()['Habilitations'] }}</dd>
+        <dt>Coût horaire (€)</dt><dd>{{ selectedEmployee()['Coût horaire (€)'] }}</dd>
+        <dt>Niveau d'expérience</dt><dd>{{ selectedEmployee()['Niveau d\'expérience'] }}</dd>
+        <dt>Rotation</dt><dd>{{ selectedEmployee()['Rotation'] }}</dd>
+        <dt>Commentaire de Carrière</dt><dd>{{ selectedEmployee()['Commentaire de Carrière'] }}</dd>
+      </dl>
+    </div>
+  </div>
+</div>
