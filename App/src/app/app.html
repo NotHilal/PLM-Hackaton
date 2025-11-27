@@ -50,6 +50,13 @@
           <span class="nav-icon">📁</span>
           <span class="nav-label">Data</span>
         </a>
+        <a
+          class="nav-item"
+          [class.active]="activeRoute === 'test'"
+          (click)="navigate('test')">
+          <span class="nav-icon">🧪</span>
+          <span class="nav-label">Test Backend</span>
+        </a>
       </nav>
     </aside>
 
@@ -60,6 +67,7 @@
       <app-analytics-tab *ngIf="activeRoute === 'analytics'"></app-analytics-tab>
       <app-insights-tab *ngIf="activeRoute === 'insights'"></app-insights-tab>
       <app-data-upload-tab *ngIf="activeRoute === 'data'"></app-data-upload-tab>
+      <app-test-backend *ngIf="activeRoute === 'test'"></app-test-backend>
     </main>
   </div>
 </div>

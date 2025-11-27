@@ -5,8 +5,9 @@ import { OverviewTabComponent } from './overview-tab/overview-tab';
 import { AnalyticsTabComponent } from './analytics-tab/analytics-tab';
 import { InsightsTabComponent } from './insights-tab/insights-tab';
 import { DataUploadTabComponent } from './data-upload-tab/data-upload';
+import { TestBackendComponent } from './test-backend/test-backend.component';
 
-type RouteType = 'overview' | 'analytics' | 'insights' | 'data';
+type RouteType = 'overview' | 'analytics' | 'insights' | 'data' | 'test';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,8 @@ type RouteType = 'overview' | 'analytics' | 'insights' | 'data';
     OverviewTabComponent,
     AnalyticsTabComponent,
     InsightsTabComponent,
-    DataUploadTabComponent
+    DataUploadTabComponent,
+    TestBackendComponent
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css']

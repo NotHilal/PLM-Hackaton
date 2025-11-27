@@ -1,0 +1,165 @@
+<div class="kpi-dashboard-wrapper">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Loading KPIs from Python backend...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="card error-card">
+    <h3>Error</h3>
+    <p>{{ error }}</p>
+    <button class="btn btn-primary" (click)="refreshData()">Retry</button>
+  </div>
+
+  <!-- KPIs Display -->
+  <div *ngIf="!loading && !error && kpis" class="kpi-content">
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <h2 class="page-title">KPI Dashboard</h2>
+        <p class="page-subtitle">Real-time metrics from Python backend</p>
+      </div>
+      <button class="btn btn-primary" (click)="refreshData()">Refresh</button>
+    </div>
+
+    <!-- ERP KPIs -->
+    <div class="card mb-xl">
+      <div class="card-header">🔵 ERP - Enterprise Resource Planning</div>
+      <div class="card-body">
+        <div class="grid grid-cols-3">
+          <div class="kpi-card">
+            <div class="kpi-label">Criticité Moyenne</div>
+            <div class="kpi-value">{{ kpis.ERP.criticite_moyenne.toFixed(1) }}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Coût Total</div>
+            <div class="kpi-value">{{ formatCurrency(kpis.ERP.cout_total) }}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Masse Totale</div>
+            <div class="kpi-value">{{ kpis.ERP.masse_totale.toFixed(2) }} kg</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Délai Moyen Fournisseur</div>
+            <div class="kpi-value">{{ kpis.ERP.delai_moyen_fournisseur.toFixed(1) }} jours</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Temps CAO Total</div>
+            <div class="kpi-value">{{ kpis.ERP.temps_cao_total.toFixed(1) }} h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MES KPIs -->
+    <div class="card mb-xl">
+      <div class="card-header">🟠 MES - Manufacturing Execution System</div>
+      <div class="card-body">
+        <div class="grid grid-cols-4">
+          <div class="kpi-card">
+            <div class="kpi-label">Écart Moyen Temps</div>
+            <div class="kpi-value">{{ kpis.MES.ecart_moyen_temps.toFixed(1) }} min</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Taux Aléas</div>
+            <div class="kpi-value">{{ kpis.MES.taux_aleas.toFixed(1) }}%</div>
+            <div class="badge" [ngClass]="kpis.MES.taux_aleas > 10 ? 'badge-error' : 'badge-success'">
+              {{ kpis.MES.taux_aleas > 10 ? 'High' : 'Normal' }}
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Temps Arrêt Moyen</div>
+            <div class="kpi-value">{{ kpis.MES.temps_arret_moyen.toFixed(1) }} min</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Productivité Poste</div>
+            <div class="kpi-value">{{ kpis.MES.productivite_poste.toFixed(1) }}</div>
+            <div class="text-muted" style="font-size: 0.875rem;">pièces/h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLM KPIs -->
+    <div class="card mb-xl">
+      <div class="card-header">🟢 PLM - Product Lifecycle Management</div>
+      <div class="card-body">
+        <div class="grid grid-cols-3">
+          <div class="kpi-card">
+            <div class="kpi-label">Coût MO Total</div>
+            <div class="kpi-value">{{ formatCurrency(kpis.PLM.cout_mo_total) }}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Score Compétence</div>
+            <div class="kpi-value">{{ kpis.PLM.score_competence.toFixed(1) }}/10</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Seniority Mix</div>
+            <div class="seniority-mix">
+              <div class="mix-bar">
+                <div class="experts" [style.width.%]="kpis.PLM.seniority_mix.experts"></div>
+              </div>
+              <div class="mix-labels">
+                <span>Experts: {{ kpis.PLM.seniority_mix.experts }}%</span>
+                <span>Juniors: {{ kpis.PLM.seniority_mix.juniors }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CROSS KPIs -->
+    <div class="card mb-xl">
+      <div class="card-header">🔴 CROSS - Cross-functional Metrics</div>
+      <div class="card-body">
+        <div class="grid grid-cols-2">
+          <div class="kpi-card">
+            <div class="kpi-label">Impact Aléas</div>
+            <div class="kpi-value">{{ kpis.CROSS.impact_aleas.toFixed(1) }}%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Coût Retard</div>
+            <div class="kpi-value">{{ formatCurrency(kpis.CROSS.cout_retard) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORKFLOW KPIs -->
+    <div class="card mb-xl">
+      <div class="card-header">🟣 WORKFLOW - Process Flow</div>
+      <div class="card-body">
+        <div class="grid grid-cols-3 mb-lg">
+          <div class="kpi-card">
+            <div class="kpi-label">Bottleneck Index</div>
+            <div class="kpi-value">{{ formatPercentage(kpis.WORKFLOW.bottleneck_index) }}</div>
+            <div class="badge" [ngClass]="kpis.WORKFLOW.bottleneck_index > 0.8 ? 'badge-error' : 'badge-success'">
+              {{ kpis.WORKFLOW.bottleneck_index > 0.8 ? 'Critical' : 'Normal' }}
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Cycle Time Global</div>
+            <div class="kpi-value">{{ kpis.WORKFLOW.cycle_time_global.toFixed(1) }} h</div>
+          </div>
+        </div>
+
+        <h4 class="mt-xl mb-md">Disponibilité par Poste (40 postes)</h4>
+        <div class="disponibilite-grid">
+          <div
+            *ngFor="let item of getDisponibiliteEntries()"
+            class="disponibilite-item"
+            [ngClass]="{
+              'high': item.value >= 0.9,
+              'medium': item.value >= 0.7 && item.value < 0.9,
+              'low': item.value < 0.7
+            }">
+            <span class="poste-name">{{ item.poste }}</span>
+            <span class="poste-value">{{ formatPercentage(item.value) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,130 @@
+.kpi-dashboard-wrapper {
+  padding: var(--spacing-xl);
+  background: var(--bg-primary);
+  min-height: 100vh;
+}
+
+.kpi-content {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* Seniority Mix */
+.seniority-mix {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.mix-bar {
+  width: 100%;
+  height: 24px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  position: relative;
+}
+
+.mix-bar .experts {
+  height: 100%;
+  background: linear-gradient(90deg, var(--success), #059669);
+  transition: width 0.3s ease;
+}
+
+.mix-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Disponibilité Grid */
+.disponibilite-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+.disponibilite-item {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-sm);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.disponibilite-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.disponibilite-item.high {
+  border-left-color: var(--success);
+}
+
+.disponibilite-item.medium {
+  border-left-color: var(--warning);
+}
+
+.disponibilite-item.low {
+  border-left-color: var(--error);
+}
+
+.poste-name {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.poste-value {
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-top: var(--spacing-xs);
+}
+
+/* Error Card */
+.error-card {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--error);
+  text-align: center;
+  padding: var(--spacing-2xl);
+}
+
+.error-card h3 {
+  color: var(--error);
+  margin-bottom: var(--spacing-md);
+}
+
+.error-card p {
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .kpi-dashboard-wrapper {
+    padding: var(--spacing-md);
+  }
+
+  .grid-cols-3,
+  .grid-cols-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .disponibilite-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
