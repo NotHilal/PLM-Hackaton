@@ -1,0 +1,224 @@
+<div class="overview-container">
+  <!-- KPI Header Section -->
+  <div class="kpi-header grid grid-cols-4 mb-xl">
+    <!-- Total WIP Card -->
+    <div class="kpi-card">
+      <div class="kpi-label">Total WIP</div>
+      <div class="kpi-value">{{ kpiSummary?.totalWIP || 0 }}</div>
+      <div class="kpi-delta" [ngClass]="getDeltaClass(kpiSummary?.deltaWIP || 0)">
+        {{ formatDelta(kpiSummary?.deltaWIP || 0) }}
+      </div>
+    </div>
+
+    <!-- Average Lead Time Card -->
+    <div class="kpi-card">
+      <div class="kpi-label">Avg Lead Time</div>
+      <div class="kpi-value">{{ (kpiSummary?.avgLeadTime || 0).toFixed(1) }}h</div>
+      <div class="kpi-delta" [ngClass]="getDeltaClass(kpiSummary?.deltaLeadTime || 0)">
+        {{ formatDelta(kpiSummary?.deltaLeadTime || 0) }}
+      </div>
+    </div>
+
+    <!-- Rework Rate Card -->
+    <div class="kpi-card">
+      <div class="kpi-label">Rework Rate</div>
+      <div class="kpi-value">{{ (kpiSummary?.reworkRate || 0).toFixed(1) }}%</div>
+      <div class="badge" [ngClass]="(kpiSummary?.reworkRate || 0) > 10 ? 'badge-error' : 'badge-success'">
+        {{ (kpiSummary?.reworkRate || 0) > 10 ? 'High' : 'Normal' }}
+      </div>
+    </div>
+
+    <!-- Throughput Card -->
+    <div class="kpi-card">
+      <div class="kpi-label">Throughput</div>
+      <div class="kpi-value">{{ (kpiSummary?.throughput || 0).toFixed(1) }}</div>
+      <div class="text-muted" style="font-size: 0.875rem;">cases/day</div>
+    </div>
+  </div>
+
+  <!-- Bottleneck Info Bar -->
+  <div class="card mb-xl" *ngIf="kpiSummary?.bottleneckOperation">
+    <div class="flex items-center justify-between">
+      <div>
+        <span class="text-muted">Main Bottleneck:</span>
+        <strong class="ml-sm" style="font-size: 1.1rem; color: var(--text-primary);">
+          {{ kpiSummary?.bottleneckOperation }}
+        </strong>
+      </div>
+      <span class="badge badge-error">Critical</span>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="grid grid-cols-2 mb-xl">
+    <!-- Process Flow Visualization -->
+    <div class="card" style="grid-column: span 2;">
+      <div class="card-header">Process Flow Timeline</div>
+      <div class="card-body">
+        <div class="process-flow-container">
+          <ngx-graph
+            class="process-graph"
+            [view]="[1200, 400]"
+            [links]="edges"
+            [nodes]="nodes"
+            [update$]="update$"
+            [center$]="center$"
+            [zoomToFit$]="zoomToFit$"
+            layout="dagreCluster"
+            [draggingEnabled]="true"
+            [panningEnabled]="true"
+            [enableZoom]="true">
+
+            <ng-template #nodeTemplate let-node>
+              <svg:g class="node">
+                <svg:rect
+                  [attr.width]="150"
+                  [attr.height]="80"
+                  [attr.fill]="'var(--bg-card)'"
+                  [attr.stroke]="getBottleneckSeverityColor(node.data?.bottleneckSeverity || 'none')"
+                  [attr.stroke-width]="2"
+                  rx="8"
+                />
+                <svg:text
+                  alignment-baseline="central"
+                  [attr.x]="75"
+                  [attr.y]="40"
+                  text-anchor="middle"
+                  [attr.fill]="'var(--text-primary)'"
+                  style="font-size: 12px;">
+                  <tspan x="75" dy="0">{{ node.label.split('\n')[0] }}</tspan>
+                  <tspan x="75" dy="15" style="font-size: 10px; fill: var(--text-secondary);">
+                    {{ node.label.split('\n')[1] }}
+                  </tspan>
+                  <tspan x="75" dy="15" style="font-size: 10px; fill: var(--text-secondary);">
+                    {{ node.label.split('\n')[2] }}
+                  </tspan>
+                </svg:text>
+              </svg:g>
+            </ng-template>
+
+            <ng-template #linkTemplate let-link>
+              <svg:g class="edge">
+                <svg:path
+                  class="line"
+                  stroke-width="2"
+                  stroke="var(--accent-cyan)"
+                  [attr.d]="link.line"
+                  marker-end="url(#arrow)"
+                />
+              </svg:g>
+            </ng-template>
+
+          </ngx-graph>
+
+          <!-- Arrow marker definition -->
+          <svg width="0" height="0">
+            <defs>
+              <marker
+                id="arrow"
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent-cyan)" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Grid -->
+  <div class="grid grid-cols-2">
+    <!-- WIP by Step Chart -->
+    <div class="chart-container">
+      <div class="chart-title">Work in Progress by Operation</div>
+      <ngx-charts-bar-vertical
+        [view]="view"
+        [results]="wipChartData"
+        [xAxis]="showXAxis"
+        [yAxis]="showYAxis"
+        [legend]="false"
+        [showXAxisLabel]="true"
+        [showYAxisLabel]="true"
+        [xAxisLabel]="'Operation'"
+        [yAxisLabel]="'WIP Count'"
+        [scheme]="colorScheme"
+        [gradient]="true"
+        [roundEdges]="true">
+      </ngx-charts-bar-vertical>
+    </div>
+
+    <!-- Lead Time Distribution -->
+    <div class="chart-container">
+      <div class="chart-title">Cycle Time vs Waiting Time</div>
+      <ngx-charts-bar-vertical-stacked
+        [view]="view"
+        [results]="leadTimeChartData"
+        [xAxis]="showXAxis"
+        [yAxis]="showYAxis"
+        [legend]="showLegend"
+        [showXAxisLabel]="true"
+        [showYAxisLabel]="true"
+        [xAxisLabel]="'Operation'"
+        [yAxisLabel]="'Time (minutes)'"
+        [scheme]="colorScheme">
+      </ngx-charts-bar-vertical-stacked>
+    </div>
+  </div>
+
+  <!-- Operation Summary Table -->
+  <div class="card mt-xl">
+    <div class="card-header">Operation Details</div>
+    <div class="card-body">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Operation</th>
+            <th>WIP</th>
+            <th>Avg Cycle Time</th>
+            <th>Avg Waiting Time</th>
+            <th>Cases</th>
+            <th>Rework Rate</th>
+            <th>Throughput</th>
+            <th>Bottleneck</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let op of operationSummaries">
+            <td><strong>{{ op.operation }}</strong></td>
+            <td>{{ op.currentWIP }}</td>
+            <td>{{ op.avgCycleTime.toFixed(1) }} min</td>
+            <td>{{ op.avgWaitingTime.toFixed(1) }} min</td>
+            <td>{{ op.caseCount }}</td>
+            <td>
+              <span [ngClass]="{
+                'text-error': op.reworkRate > 10,
+                'text-warning': op.reworkRate > 5 && op.reworkRate <= 10,
+                'text-success': op.reworkRate <= 5
+              }">
+                {{ op.reworkRate.toFixed(1) }}%
+              </span>
+            </td>
+            <td>{{ op.throughput.toFixed(1) }}/day</td>
+            <td>
+              <span
+                class="badge"
+                [ngClass]="{
+                  'badge-error': op.bottleneckSeverity === 'high',
+                  'badge-warning': op.bottleneckSeverity === 'medium',
+                  'badge-info': op.bottleneckSeverity === 'low',
+                  'badge-success': op.bottleneckSeverity === 'none'
+                }">
+                {{ op.bottleneckSeverity }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

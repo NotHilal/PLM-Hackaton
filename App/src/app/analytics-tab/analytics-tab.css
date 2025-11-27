@@ -1,0 +1,57 @@
+.analytics-container {
+  padding: var(--spacing-xl);
+  background: var(--bg-primary);
+  min-height: 100vh;
+}
+
+.filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.filter-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.operation-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.chip {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.chip:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.chip.active {
+  background: linear-gradient(135deg, var(--primary-blue-light) 0%, var(--primary-blue) 100%);
+  color: white;
+  border-color: var(--primary-blue);
+}
+
+@media (max-width: 768px) {
+  .analytics-container {
+    padding: var(--spacing-md);
+  }
+}

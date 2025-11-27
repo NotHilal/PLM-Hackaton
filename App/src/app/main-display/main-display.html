@@ -1,7 +1,73 @@
 <div class="main-display">
-  <h2>{{ placeholderText }}</h2>
-  <div class="diagram-placeholder">
-    <!-- Placeholder for the flow diagram -->
-    <p>Diagramme de flux en cours de développement...</p>
+  <div class="graph-header">
+    <h2>Process Flow Diagram</h2>
+  </div>
+
+  <div class="graph-container">
+    <ngx-graph
+      class="chart-container"
+      [nodes]="nodes"
+      [links]="edges"
+      [update$]="update$"
+      [center$]="center$"
+      [zoomToFit$]="zoomToFit$"
+      [enableZoom]="false"
+      [panOnZoom]="false"
+      [autoZoom]="true"
+      [autoCenter]="true"
+      [panningEnabled]="false"
+      layout="dagreCluster"
+      [curve]="'basis'"
+    >
+      <ng-template #defsTemplate>
+        <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">
+          <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
+        </svg:marker>
+      </ng-template>
+
+      <ng-template #nodeTemplate let-node>
+        <svg:g class="node">
+          <svg:rect
+            [attr.width]="150"
+            [attr.height]="60"
+            [attr.fill]="'#667eea'"
+            rx="8"
+          />
+          <svg:text
+            alignment-baseline="central"
+            [attr.x]="75"
+            [attr.y]="30"
+            text-anchor="middle"
+            fill="#ffffff"
+            font-size="12"
+            font-weight="500"
+          >
+            <svg:tspan *ngFor="let line of node.label.split('\n'); let i = index" [attr.x]="75" [attr.dy]="i === 0 ? 0 : 14">
+              {{ line }}
+            </svg:tspan>
+          </svg:text>
+        </svg:g>
+      </ng-template>
+
+      <ng-template #linkTemplate let-link>
+        <svg:g class="edge">
+          <svg:path
+            class="line"
+            stroke-width="2"
+            stroke="#94a3b8"
+            fill="none"
+            marker-end="url(#arrow)"
+          ></svg:path>
+          <svg:text
+            class="edge-label"
+            text-anchor="middle"
+            fill="#475569"
+            font-size="11"
+          >
+            {{ link.label }}
+          </svg:text>
+        </svg:g>
+      </ng-template>
+    </ngx-graph>
   </div>
 </div>

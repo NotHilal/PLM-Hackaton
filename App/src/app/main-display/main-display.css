@@ -1,16 +1,50 @@
 .main-display {
-  width: 70%;
-  height: 100vh;
-  padding: 1rem;
-  box-sizing: border-box;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  overflow: hidden;
 }
 
-.diagram-placeholder {
+.graph-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e0e0e0;
+  background: white;
+}
+
+.graph-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.graph-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #fafbfc;
+}
+
+.chart-container {
   width: 100%;
-  height: 80%;
-  border: 2px dashed #ccc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f9f9f9;
+  height: 100%;
+}
+
+:host ::ng-deep .node {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+:host ::ng-deep .node:hover rect {
+  filter: brightness(1.1);
+}
+
+:host ::ng-deep .arrow-head {
+  fill: #94a3b8;
+}
+
+:host ::ng-deep .edge-label {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }

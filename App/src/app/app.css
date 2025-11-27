@@ -1,0 +1,230 @@
+:host {
+  display: block;
+  height: 100vh;
+  width: 100vw;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Header Styles */
+.app-header {
+  height: 64px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 var(--spacing-xl);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.menu-toggle {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  transition: background 0.2s ease;
+}
+
+.menu-toggle:hover {
+  background: var(--bg-hover);
+}
+
+.menu-icon {
+  display: block;
+  line-height: 1;
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.app-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  padding-left: var(--spacing-md);
+  border-left: 2px solid var(--border-color);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+/* Body Layout */
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Sidenav Styles */
+.app-sidenav {
+  width: 240px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  padding: var(--spacing-lg) 0;
+  overflow-y: auto;
+  transition: transform 0.3s ease, margin 0.3s ease;
+  flex-shrink: 0;
+}
+
+.sidenav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: 0 var(--spacing-md);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.nav-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.nav-item.active {
+  background: linear-gradient(135deg, var(--primary-blue-light) 0%, var(--primary-blue) 100%);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.nav-label {
+  font-size: 0.9375rem;
+}
+
+/* Main Content Area */
+.app-content {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--bg-primary);
+}
+
+.data-placeholder {
+  padding: var(--spacing-2xl);
+  text-align: center;
+}
+
+.data-placeholder h2 {
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.data-placeholder p {
+  color: var(--text-muted);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .app-sidenav {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    bottom: 0;
+    z-index: 90;
+    transform: translateX(-100%);
+  }
+
+  .app-sidenav.open {
+    transform: translateX(0);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .app-content {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    padding: 0 var(--spacing-md);
+  }
+
+  .app-title {
+    font-size: 1.25rem;
+  }
+
+  .app-subtitle {
+    display: none;
+  }
+
+  .app-sidenav {
+    width: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-title {
+    font-size: 1.1rem;
+  }
+
+  .header-right .btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.75rem;
+  }
+}
+
+/* Scrollbar for sidenav and content */
+.app-sidenav::-webkit-scrollbar,
+.app-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.app-sidenav::-webkit-scrollbar-track,
+.app-content::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+.app-sidenav::-webkit-scrollbar-thumb,
+.app-content::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+}
+
+.app-sidenav::-webkit-scrollbar-thumb:hover,
+.app-content::-webkit-scrollbar-thumb:hover {
+  background: var(--bg-hover);
+}

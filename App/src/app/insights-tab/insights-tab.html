@@ -1,0 +1,111 @@
+<div class="insights-container" *ngIf="kpiData">
+  <!-- Bottlenecks Section -->
+  <div class="bottlenecks-section">
+    <div class="section-header">
+      <h2>🔴 Identified Bottlenecks</h2>
+      <p>Critical areas causing delays and reducing process efficiency</p>
+    </div>
+
+    <div class="bottleneck-items">
+      <div
+        *ngFor="let bottleneck of kpiData.bottlenecks"
+        class="bottleneck-item"
+        [style.border-left-color]="getSeverityColor(bottleneck.severity)"
+      >
+        <div class="bottleneck-header">
+          <div class="bottleneck-title">
+            <span class="bottleneck-icon">⚠️</span>
+            <span class="bottleneck-name">{{ bottleneck.label }}</span>
+          </div>
+          <span class="bottleneck-severity" [style.background-color]="getSeverityColor(bottleneck.severity)">
+            {{ bottleneck.severity }}
+          </span>
+        </div>
+
+        <div class="bottleneck-reason">
+          <strong>Issue:</strong> {{ bottleneck.reason }}
+        </div>
+
+        <div class="bottleneck-metrics">
+          <div class="metric-item">
+            <span class="metric-label">WIP Units:</span>
+            <span class="metric-value">{{ bottleneck.wip }}</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Waiting Time:</span>
+            <span class="metric-value">{{ bottleneck.waitingTime }} min</span>
+          </div>
+        </div>
+
+        <div class="bottleneck-impact">
+          <span class="impact-badge">High Impact on Lead Time</span>
+        </div>
+      </div>
+
+      <div *ngIf="kpiData.bottlenecks.length === 0" class="no-bottlenecks">
+        <div class="success-icon">✅</div>
+        <h3>No Significant Bottlenecks Detected</h3>
+        <p>All stations are operating within normal parameters</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Optimization Actions Section -->
+  <div class="optimization-section">
+    <div class="section-header">
+      <h2>💡 Optimization Recommendations</h2>
+      <p>AI-powered suggestions to improve process efficiency</p>
+    </div>
+
+    <div class="optimization-items">
+      <div
+        *ngFor="let action of kpiData.optimizationActions"
+        class="optimization-item"
+      >
+        <div class="optimization-header">
+          <div class="optimization-priority-badge">
+            <span class="priority-number">{{ action.priority }}</span>
+            <span class="priority-label">PRIORITY</span>
+          </div>
+          <h3>{{ action.title }}</h3>
+        </div>
+
+        <div class="optimization-description">
+          {{ action.description }}
+        </div>
+
+        <div class="optimization-impact">
+          <div class="impact-header">
+            <span class="impact-icon">📊</span>
+            <span class="impact-label">Expected Impact</span>
+          </div>
+          <div class="impact-value">{{ action.estimatedImpact }}</div>
+        </div>
+
+        <div class="optimization-actions">
+          <button class="action-btn primary">View Details</button>
+          <button class="action-btn secondary">Mark as Planned</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Stats -->
+  <div class="summary-stats">
+    <h3>Improvement Potential</h3>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-value">{{ Math.abs(kpiData.deltaWIP) }}%</div>
+        <div class="stat-label">WIP Reduction</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">{{ Math.abs(kpiData.deltaLeadTime) }}%</div>
+        <div class="stat-label">Lead Time Decrease</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">{{ kpiData.optimizationActions.length }}</div>
+        <div class="stat-label">Action Items</div>
+      </div>
+    </div>
+  </div>
+</div>

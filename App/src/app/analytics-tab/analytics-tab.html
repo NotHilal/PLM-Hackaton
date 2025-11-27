@@ -1,0 +1,133 @@
+<div class="analytics-container">
+  <!-- Filter Section -->
+  <div class="card mb-xl">
+    <div class="card-header">Filters</div>
+    <div class="card-body">
+      <div class="filter-section">
+        <label class="filter-label">Operations:</label>
+        <div class="filter-buttons">
+          <button class="btn btn-secondary" (click)="selectAllOperations()">Select All</button>
+          <button class="btn btn-secondary" (click)="clearAllOperations()">Clear All</button>
+        </div>
+        <div class="operation-chips">
+          <button
+            *ngFor="let op of allOperations"
+            class="chip"
+            [class.active]="isOperationSelected(op)"
+            (click)="toggleOperationFilter(op)">
+            {{ op }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Grid -->
+  <div class="grid grid-cols-2">
+    <!-- WIP Chart -->
+    <div class="chart-container">
+      <div class="chart-title">Work in Progress by Operation</div>
+      <ngx-charts-bar-vertical
+        [view]="view"
+        [results]="wipChartData"
+        [xAxis]="showXAxis"
+        [yAxis]="showYAxis"
+        [legend]="false"
+        [showXAxisLabel]="true"
+        [showYAxisLabel]="true"
+        [xAxisLabel]="'Operation'"
+        [yAxisLabel]="'WIP Count'"
+        [scheme]="colorScheme"
+        [gradient]="true">
+      </ngx-charts-bar-vertical>
+    </div>
+
+    <!-- Bottleneck Chart -->
+    <div class="chart-container">
+      <div class="chart-title">Bottleneck Analysis (Waiting Time)</div>
+      <ngx-charts-bar-horizontal
+        [view]="view"
+        [results]="bottleneckChartData"
+        [xAxis]="showXAxis"
+        [yAxis]="showYAxis"
+        [legend]="false"
+        [showXAxisLabel]="true"
+        [showYAxisLabel]="true"
+        [xAxisLabel]="'Waiting Time (min)'"
+        [yAxisLabel]="'Operation'"
+        [scheme]="colorScheme">
+      </ngx-charts-bar-horizontal>
+    </div>
+
+    <!-- Rework Chart -->
+    <div class="chart-container">
+      <div class="chart-title">Rework Rate by Operation</div>
+      <ngx-charts-bar-vertical
+        [view]="view"
+        [results]="reworkChartData"
+        [xAxis]="showXAxis"
+        [yAxis]="showYAxis"
+        [legend]="false"
+        [showXAxisLabel]="true"
+        [showYAxisLabel]="true"
+        [xAxisLabel]="'Operation'"
+        [yAxisLabel]="'Rework Rate (%)'"
+        [scheme]="colorScheme">
+      </ngx-charts-bar-vertical>
+    </div>
+
+    <!-- Cycle vs Waiting -->
+    <div class="chart-container">
+      <div class="chart-title">Cycle Time vs Waiting Time</div>
+      <ngx-charts-bar-vertical-2d
+        [view]="view"
+        [results]="cycleVsWaitingData"
+        [xAxis]="showXAxis"
+        [yAxis]="showYAxis"
+        [legend]="showLegend"
+        [showXAxisLabel]="true"
+        [showYAxisLabel]="true"
+        [xAxisLabel]="'Operation'"
+        [yAxisLabel]="'Time (minutes)'"
+        [scheme]="colorScheme">
+      </ngx-charts-bar-vertical-2d>
+    </div>
+  </div>
+
+  <!-- Bottleneck Table -->
+  <div class="card mt-xl" *ngIf="bottlenecks.length > 0">
+    <div class="card-header">Identified Bottlenecks</div>
+    <div class="card-body">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Operation</th>
+            <th>Station</th>
+            <th>Waiting Time</th>
+            <th>Cycle Time</th>
+            <th>Ratio</th>
+            <th>WIP</th>
+            <th>Severity</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let b of bottlenecks">
+            <td><strong>{{ b.operation }}</strong></td>
+            <td>{{ b.station_id }}</td>
+            <td>{{ b.avgWaitingTime.toFixed(1) }} min</td>
+            <td>{{ b.avgCycleTime.toFixed(1) }} min</td>
+            <td><strong>{{ b.waitingToCycleRatio.toFixed(2) }}x</strong></td>
+            <td>{{ b.currentWIP }}</td>
+            <td>
+              <span class="badge" [ngClass]="getSeverityClass(b.severity)">
+                {{ b.severity }}
+              </span>
+            </td>
+            <td class="text-muted">{{ b.reason }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

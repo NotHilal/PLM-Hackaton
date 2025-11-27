@@ -1,0 +1,140 @@
+<div class="dashboard">
+  <div class="dashboard-header">
+    <h2>Process Mining Analytics Dashboard</h2>
+    <span class="dashboard-subtitle">Manufacturing Operations - Electronics Industry</span>
+  </div>
+
+  <div class="dashboard-content" *ngIf="kpiData">
+    <!-- Primary KPI Cards -->
+    <div class="kpi-cards">
+      <div class="kpi-card">
+        <div class="kpi-icon">📦</div>
+        <div class="kpi-info">
+          <div class="kpi-label">Total WIP</div>
+          <div class="kpi-value">{{ kpiData.totalWIP }}</div>
+          <div class="kpi-delta positive" *ngIf="kpiData.deltaWIP < 0">
+            ▼ {{ Math.abs(kpiData.deltaWIP) }}% improvement
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon">⏱️</div>
+        <div class="kpi-info">
+          <div class="kpi-label">Avg Lead Time</div>
+          <div class="kpi-value">{{ kpiData.averageLeadTime.toFixed(1) }} min</div>
+          <div class="kpi-delta positive" *ngIf="kpiData.deltaLeadTime < 0">
+            ▼ {{ Math.abs(kpiData.deltaLeadTime) }}% improvement
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon">📊</div>
+        <div class="kpi-info">
+          <div class="kpi-label">Total Operations</div>
+          <div class="kpi-value">{{ kpiData.totalOperations }}</div>
+        </div>
+      </div>
+
+      <div class="kpi-card critical">
+        <div class="kpi-icon">⚠️</div>
+        <div class="kpi-info">
+          <div class="kpi-label">Bottlenecks</div>
+          <div class="kpi-value">{{ kpiData.bottlenecks.length }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts and Analysis Section -->
+    <div class="analysis-section">
+      <div class="charts-row">
+        <div class="chart-box">
+          <h3>Work in Progress by Station</h3>
+          <ngx-charts-bar-horizontal
+            [view]="view"
+            [scheme]="colorScheme"
+            [results]="wipChartData"
+            [xAxis]="true"
+            [yAxis]="true"
+            [legend]="showLegend"
+            [showXAxisLabel]="true"
+            [showYAxisLabel]="false"
+            xAxisLabel="WIP Units"
+            [animations]="true"
+          >
+          </ngx-charts-bar-horizontal>
+        </div>
+
+        <div class="chart-box">
+          <h3>Waiting Time Analysis</h3>
+          <ngx-charts-bar-vertical
+            [view]="view"
+            [scheme]="colorScheme"
+            [results]="bottleneckChartData"
+            [xAxis]="true"
+            [yAxis]="true"
+            [legend]="showLegend"
+            [showXAxisLabel]="false"
+            [showYAxisLabel]="true"
+            yAxisLabel="Wait Time (min)"
+            [animations]="true"
+          >
+          </ngx-charts-bar-vertical>
+        </div>
+      </div>
+
+      <!-- Bottlenecks Section -->
+      <div class="bottlenecks-section">
+        <h3>🔴 Identified Bottlenecks</h3>
+        <div class="bottleneck-items">
+          <div
+            *ngFor="let bottleneck of kpiData.bottlenecks"
+            class="bottleneck-item"
+            [style.border-left-color]="getSeverityColor(bottleneck.severity)"
+          >
+            <div class="bottleneck-header">
+              <span class="bottleneck-name">{{ bottleneck.label }}</span>
+              <span class="bottleneck-severity" [style.background-color]="getSeverityColor(bottleneck.severity)">
+                {{ bottleneck.severity }}
+              </span>
+            </div>
+            <div class="bottleneck-reason">{{ bottleneck.reason }}</div>
+            <div class="bottleneck-metrics">
+              <span>WIP: {{ bottleneck.wip }} units</span>
+              <span>Wait: {{ bottleneck.waitingTime }} min</span>
+            </div>
+          </div>
+          <div *ngIf="kpiData.bottlenecks.length === 0" class="no-bottlenecks">
+            ✅ No significant bottlenecks detected
+          </div>
+        </div>
+      </div>
+
+      <!-- Optimization Actions Section -->
+      <div class="optimization-section">
+        <h3>💡 Top 3 Optimization Actions</h3>
+        <div class="optimization-items">
+          <div
+            *ngFor="let action of kpiData.optimizationActions"
+            class="optimization-item"
+          >
+            <div class="optimization-header">
+              <span class="optimization-priority">Priority {{ action.priority }}</span>
+              <h4>{{ action.title }}</h4>
+            </div>
+            <p class="optimization-description">{{ action.description }}</p>
+            <div class="optimization-impact">
+              <span class="impact-label">Expected Impact:</span>
+              <span class="impact-value">{{ action.estimatedImpact }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-empty" *ngIf="!kpiData">
+    <p>Loading analytics data...</p>
+  </div>
+</div>

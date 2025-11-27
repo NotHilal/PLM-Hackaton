@@ -1,8 +1,43 @@
-<p>sidebar works!</p>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <h2>Uploaded Documents</h2>
+  </div>
 
-<div class="sidebar" (drop)="onFileDropped($event)" (dragover)="onDragOver($event)">
-  <h3>Drag and Drop Files Here</h3>
-  <ul>
-    <li *ngFor="let file of files">{{ file.name }}</li>
-  </ul>
+  <div class="sidebar-content">
+    <div *ngIf="documents.length === 0" class="empty-state">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+        <polyline points="13 2 13 9 20 9"></polyline>
+      </svg>
+      <p>No documents uploaded yet</p>
+      <p class="hint">Use the upload button above</p>
+    </div>
+
+    <div class="documents-list" *ngIf="documents.length > 0">
+      <div
+        *ngFor="let doc of documents"
+        class="document-item"
+        [class.selected]="selectedDocument?.name === doc.name"
+        (click)="selectDocument(doc)"
+      >
+        <div class="doc-icon">{{ getFileIcon(doc.type) }}</div>
+        <div class="doc-info">
+          <div class="doc-name" [title]="doc.name">{{ doc.name }}</div>
+          <div class="doc-meta">
+            <span class="doc-type">{{ doc.type || 'unknown' }}</span>
+            <span class="doc-size">{{ formatFileSize(doc.size) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="file-preview" *ngIf="selectedDocument">
+      <h3>Preview</h3>
+      <div class="preview-content">
+        <div *ngFor="let line of selectedDocument.preview" class="preview-line">
+          {{ line }}
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

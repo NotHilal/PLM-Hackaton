@@ -1,0 +1,78 @@
+.overview-container {
+  padding: var(--spacing-xl);
+  background: var(--bg-primary);
+  min-height: 100vh;
+}
+
+.kpi-header {
+  margin-bottom: var(--spacing-xl);
+}
+
+.process-flow-container {
+  height: 450px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.process-graph {
+  width: 100%;
+  height: 100%;
+}
+
+/* Graph node and edge styles */
+:host ::ng-deep .node {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+:host ::ng-deep .node:hover rect {
+  filter: brightness(1.2);
+  stroke-width: 3px;
+}
+
+:host ::ng-deep .edge path {
+  transition: all 0.3s ease;
+}
+
+:host ::ng-deep .edge:hover path {
+  stroke-width: 3px !important;
+  filter: brightness(1.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+  .process-flow-container {
+    height: 400px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .overview-container {
+    padding: var(--spacing-lg);
+  }
+
+  .process-flow-container {
+    height: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .overview-container {
+    padding: var(--spacing-md);
+  }
+
+  .kpi-header {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .process-flow-container {
+    height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .kpi-header {
+    grid-template-columns: 1fr;
+  }
+}
