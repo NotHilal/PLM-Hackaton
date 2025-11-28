@@ -27,6 +27,7 @@ interface FileRegistry {
 })
 export class FileVersionsModalComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
+  @Output() filesSwitched = new EventEmitter<void>(); // Emit when files are switched
 
   fileRegistry: FileRegistry = { mes: [], erp: [], plm: [] };
   selectedTab: 'mes' | 'erp' | 'plm' = 'mes';
@@ -100,6 +101,10 @@ export class FileVersionsModalComponent implements OnInit {
           this.loadFileVersions();
           this.loading = false;
           this.cdr.detectChanges();
+
+          // Emit event to notify parent that files were switched
+          console.log('📢 Emitting filesSwitched event');
+          this.filesSwitched.emit();
         },
         error: (err) => {
           console.error('❌ Error switching version:', err);

@@ -45,12 +45,17 @@
         </div>
       </div>
 
-      <!-- Rework Rate Card -->
-      <div class="kpi-card">
+      <!-- Rework Rate Card - Enhanced -->
+      <div class="kpi-card rework-card">
         <div class="kpi-label">Taux de Reprise</div>
         <div class="kpi-value">{{ processMiningKPIs.reworkRate.toFixed(1) }}%</div>
-        <div class="badge" [ngClass]="processMiningKPIs.reworkRate > 10 ? 'badge-error' : 'badge-success'">
-          {{ processMiningKPIs.reworkRate > 10 ? 'Élevé' : 'Normal' }}
+        <div class="badge" [ngClass]="processMiningKPIs.reworkRate > 40 ? 'badge-error' : processMiningKPIs.reworkRate > 25 ? 'badge-warning' : 'badge-success'">
+          {{ processMiningKPIs.reworkRate > 40 ? 'Sévère' : processMiningKPIs.reworkRate > 25 ? 'Modéré' : 'Normal' }}
+        </div>
+        <div *ngIf="processMiningKPIs.varianceBreakdown" class="kpi-detail">
+          <span class="text-muted" style="font-size: 0.75rem;">
+            Écart moyen: +{{ processMiningKPIs.varianceBreakdown.avgVariancePct.toFixed(1) }}%
+          </span>
         </div>
       </div>
 
@@ -75,14 +80,75 @@
       </div>
     </div>
 
-    <!-- Charts Grid -->
-    <div class="grid grid-cols-2 mb-xl">
+    <!-- Variance Breakdown Section -->
+    <div class="card mb-xl variance-breakdown-card" *ngIf="processMiningKPIs.varianceBreakdown">
+      <div class="card-header">
+        <span>⚠️ Analyse des Écarts de Temps</span>
+        <span class="text-muted" style="font-size: 0.875rem; font-weight: normal;">
+          (Écart = Temps Réel vs Temps Prévu)
+        </span>
+      </div>
+      <div class="card-body">
+        <div class="variance-stats-grid">
+          <div class="variance-stat variance-ontime">
+            <div class="variance-stat-label">À l'heure (≤10%)</div>
+            <div class="variance-stat-value">{{ processMiningKPIs.varianceBreakdown.onTime }}</div>
+            <div class="variance-stat-pct">{{ processMiningKPIs.varianceBreakdown.onTimePct.toFixed(1) }}%</div>
+          </div>
+          <div class="variance-stat variance-minor">
+            <div class="variance-stat-label">Retard mineur (10-25%)</div>
+            <div class="variance-stat-value">{{ processMiningKPIs.varianceBreakdown.minorDelay }}</div>
+            <div class="variance-stat-pct">{{ processMiningKPIs.varianceBreakdown.minorDelayPct.toFixed(1) }}%</div>
+          </div>
+          <div class="variance-stat variance-moderate">
+            <div class="variance-stat-label">Retard modéré (25-40%)</div>
+            <div class="variance-stat-value">{{ processMiningKPIs.varianceBreakdown.moderateDelay }}</div>
+            <div class="variance-stat-pct">{{ processMiningKPIs.varianceBreakdown.moderateDelayPct.toFixed(1) }}%</div>
+          </div>
+          <div class="variance-stat variance-severe">
+            <div class="variance-stat-label">Retard sévère (>40%)</div>
+            <div class="variance-stat-value">{{ processMiningKPIs.varianceBreakdown.severeDelay }}</div>
+            <div class="variance-stat-pct">{{ processMiningKPIs.varianceBreakdown.severeDelayPct.toFixed(1) }}%</div>
+          </div>
+        </div>
+
+        <!-- Visual Progress Bar -->
+        <div class="variance-progress-bar">
+          <div class="variance-segment variance-ontime"
+               [style.width.%]="processMiningKPIs.varianceBreakdown.onTimePct"
+               *ngIf="processMiningKPIs.varianceBreakdown.onTimePct > 0">
+          </div>
+          <div class="variance-segment variance-minor"
+               [style.width.%]="processMiningKPIs.varianceBreakdown.minorDelayPct"
+               *ngIf="processMiningKPIs.varianceBreakdown.minorDelayPct > 0">
+          </div>
+          <div class="variance-segment variance-moderate"
+               [style.width.%]="processMiningKPIs.varianceBreakdown.moderateDelayPct"
+               *ngIf="processMiningKPIs.varianceBreakdown.moderateDelayPct > 0">
+          </div>
+          <div class="variance-segment variance-severe"
+               [style.width.%]="processMiningKPIs.varianceBreakdown.severeDelayPct"
+               *ngIf="processMiningKPIs.varianceBreakdown.severeDelayPct > 0">
+          </div>
+        </div>
+
+        <div class="variance-info-footer">
+          <span class="text-muted">
+            💡 Seuil de reprise actuel: <strong>>40%</strong> d'écart |
+            Écart moyen: <strong>+{{ processMiningKPIs.varianceBreakdown.avgVariancePct.toFixed(1) }}%</strong>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 gap-lg mb-xl">
       <!-- WIP by Operation Chart -->
       <div class="chart-container">
-        <div class="chart-title">Work in Progress par Opération</div>
+        <div class="chart-title">Work in Progress par Opération (Top 10)</div>
         <ngx-charts-bar-vertical
           [view]="view"
-          [results]="wipChartData"
+          [results]="getTopWIPData()"
           [xAxis]="showXAxis"
           [yAxis]="showYAxis"
           [legend]="false"
@@ -92,16 +158,19 @@
           [yAxisLabel]="'WIP Count'"
           [scheme]="colorScheme"
           [gradient]="true"
-          [roundEdges]="true">
+          [roundEdges]="true"
+          [trimXAxisTicks]="true"
+          [maxXAxisTickLength]="20"
+          [rotateXAxisTicks]="false">
         </ngx-charts-bar-vertical>
       </div>
 
       <!-- Cycle vs Waiting Time Chart -->
       <div class="chart-container">
-        <div class="chart-title">Temps de Cycle vs Temps d'Attente</div>
+        <div class="chart-title">Temps de Cycle vs Temps d'Attente (Top 10)</div>
         <ngx-charts-bar-vertical-stacked
           [view]="view"
-          [results]="cycleWaitingChartData"
+          [results]="getTopCycleWaitingData()"
           [xAxis]="showXAxis"
           [yAxis]="showYAxis"
           [legend]="true"
@@ -109,27 +178,11 @@
           [showYAxisLabel]="true"
           [xAxisLabel]="'Opération'"
           [yAxisLabel]="'Temps (minutes)'"
-          [scheme]="colorScheme">
-        </ngx-charts-bar-vertical-stacked>
-      </div>
-
-      <!-- Rework Rate Chart -->
-      <div class="chart-container">
-        <div class="chart-title">Taux de Reprise par Opération</div>
-        <ngx-charts-bar-vertical
-          [view]="view"
-          [results]="reworkChartData"
-          [xAxis]="showXAxis"
-          [yAxis]="showYAxis"
-          [legend]="false"
-          [showXAxisLabel]="true"
-          [showYAxisLabel]="true"
-          [xAxisLabel]="'Opération'"
-          [yAxisLabel]="'Taux (%)'"
           [scheme]="colorScheme"
-          [gradient]="true"
-          [roundEdges]="true">
-        </ngx-charts-bar-vertical>
+          [trimXAxisTicks]="true"
+          [maxXAxisTickLength]="20"
+          [rotateXAxisTicks]="false">
+        </ngx-charts-bar-vertical-stacked>
       </div>
     </div>
 
@@ -144,6 +197,7 @@
               <th>WIP</th>
               <th>Temps Cycle Moy.</th>
               <th>Temps Attente Moy.</th>
+              <th>Écart Temps %</th>
               <th>Nombre de Cas</th>
               <th>Taux Reprise</th>
               <th>Débit</th>
@@ -154,14 +208,27 @@
             <tr *ngFor="let op of operations">
               <td><strong>{{ op.operation }}</strong></td>
               <td>{{ op.currentWIP }}</td>
-              <td>{{ op.avgCycleTime.toFixed(1) }} min</td>
-              <td>{{ op.avgWaitingTime.toFixed(1) }} min</td>
+              <td>{{ (op.avgCycleTime * 60).toFixed(0) }} min</td>
+              <td>{{ (op.avgWaitingTime * 60).toFixed(0) }} min</td>
+              <td>
+                <span *ngIf="op.avgVariancePct"
+                      class="variance-badge"
+                      [ngClass]="{
+                        'variance-severe': op.avgVariancePct > 40,
+                        'variance-moderate': op.avgVariancePct > 25 && op.avgVariancePct <= 40,
+                        'variance-minor': op.avgVariancePct > 10 && op.avgVariancePct <= 25,
+                        'variance-ontime': op.avgVariancePct <= 10
+                      }">
+                  +{{ op.avgVariancePct.toFixed(1) }}%
+                </span>
+                <span *ngIf="!op.avgVariancePct" class="text-muted">-</span>
+              </td>
               <td>{{ op.caseCount }}</td>
               <td>
                 <span [ngClass]="{
-                  'text-error': op.reworkRate > 10,
-                  'text-warning': op.reworkRate > 5 && op.reworkRate <= 10,
-                  'text-success': op.reworkRate <= 5
+                  'text-error': op.reworkRate > 40,
+                  'text-warning': op.reworkRate > 25 && op.reworkRate <= 40,
+                  'text-success': op.reworkRate <= 25
                 }">
                   {{ op.reworkRate.toFixed(1) }}%
                 </span>

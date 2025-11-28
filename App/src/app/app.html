@@ -107,7 +107,8 @@
 <!-- File Versions Modal -->
 <app-file-versions-modal
   *ngIf="fileVersionsModalOpen"
-  (close)="closeFileVersionsModal()">
+  (close)="closeFileVersionsModal()"
+  (filesSwitched)="onFilesSwitched()">
 </app-file-versions-modal>
 
 <router-outlet />

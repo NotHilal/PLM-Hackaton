@@ -19,6 +19,60 @@ class KPICalculator:
         # keep a deterministic rng only for mock fallbacks
         self._rng = np.random.RandomState(0)
 
+    def _parse_time_to_hours(self, time_value):
+        """Convert various time formats to hours (float)
+        Handles: datetime.time objects, HH:MM:SS strings, timedelta objects, numeric values
+        """
+        try:
+            # If already numeric, return as-is
+            if isinstance(time_value, (int, float)):
+                return float(time_value)
+
+            # If it's a datetime.time object (from Excel)
+            if hasattr(time_value, 'hour') and hasattr(time_value, 'minute') and hasattr(time_value, 'second'):
+                hours = float(time_value.hour)
+                minutes = float(time_value.minute)
+                seconds = float(time_value.second)
+                return hours + (minutes / 60) + (seconds / 3600)
+
+            # If it's a pandas Timedelta
+            if isinstance(time_value, pd.Timedelta):
+                return time_value.total_seconds() / 3600
+
+            # If it's a string in HH:MM:SS format
+            if isinstance(time_value, str):
+                # Try parsing as time string
+                if ':' in time_value:
+                    parts = time_value.split(':')
+                    if len(parts) == 3:
+                        hours = float(parts[0])
+                        minutes = float(parts[1])
+                        seconds = float(parts[2])
+                        return hours + (minutes / 60) + (seconds / 3600)
+                    elif len(parts) == 2:
+                        hours = float(parts[0])
+                        minutes = float(parts[1])
+                        return hours + (minutes / 60)
+                # Try parsing as numeric string
+                return float(time_value)
+
+            return None
+        except Exception:
+            return None
+
+    def _convert_time_column_to_hours(self, df, col_name):
+        """Convert a time column to numeric hours"""
+        if col_name is None or col_name not in df.columns:
+            return None
+
+        try:
+            # Apply time parsing to each value
+            hours_series = df[col_name].apply(self._parse_time_to_hours)
+            return hours_series
+        except Exception as e:
+            print(f"Error converting time column {col_name}: {e}")
+            return None
+
     def _numeric_columns(self, df: pd.DataFrame) -> list:
         """Return list of numeric columns in DataFrame"""
         if df is None:
@@ -246,31 +300,85 @@ class KPICalculator:
             # Total WIP = number of active cases
             total_wip = len(df)
 
-            # Average lead time from 'Temps Réel' column
+            # Parse time columns first (needed for multiple calculations)
             temps_reel_col = self._col_or_none(df, ['Temps Réel', 'Temps_Reel', 'temps_reel'])
-            if temps_reel_col:
-                avg_lead = round(float(df[temps_reel_col].dropna().astype(float).mean()), 1)
+            temps_prevu_col = self._col_or_none(df, ['Temps Prévu', 'Temps_Prevu', 'temps_prevu'])
+
+            temps_reel_hours = self._convert_time_column_to_hours(df, temps_reel_col) if temps_reel_col else None
+            temps_prevu_hours = self._convert_time_column_to_hours(df, temps_prevu_col) if temps_prevu_col else None
+
+            # Average lead time from 'Temps Réel' column
+            if temps_reel_hours is not None:
+                avg_lead = round(float(temps_reel_hours.dropna().mean()), 2)
             else:
                 avg_lead = 5.5
 
-            # Rework rate from 'Aléas Industriels' (percentage of rows with issues)
-            aleas_col = self._col_or_none(df, ['Aléas Industriels', 'Aleas_Industriels', 'aleas'])
-            if aleas_col:
-                rework_rate = round((df[aleas_col].notna().sum() / len(df)) * 100, 1)
+            # Average cycle time from 'Temps Prévu' column
+            if temps_prevu_hours is not None:
+                avg_cycle = round(float(temps_prevu_hours.dropna().mean()), 2)
             else:
-                rework_rate = 8.5
+                avg_cycle = 22.5
+
+            # Rework rate - calculate based on time variance with detailed breakdown
+            if temps_reel_hours is not None and temps_prevu_hours is not None:
+                temp_df = df.copy()
+                temp_df['_temps_reel_hours'] = temps_reel_hours
+                temp_df['_temps_prevu_hours'] = temps_prevu_hours
+
+                # Calculate variance: (actual - planned) / planned
+                temp_df['_variance'] = (temp_df['_temps_reel_hours'] - temp_df['_temps_prevu_hours']) / temp_df['_temps_prevu_hours']
+
+                # Average variance (as percentage)
+                avg_variance_pct = round(float(temp_df['_variance'].mean() * 100), 1)
+
+                # Count rows where variance > 40% (0.4) - operations taking 40%+ longer
+                rework_count = (temp_df['_variance'] > 0.4).sum()
+                rework_rate = round((rework_count / len(df)) * 100, 1)
+
+                # Breakdown by severity levels
+                on_time_count = (temp_df['_variance'] <= 0.1).sum()  # Within 10%
+                minor_delay_count = ((temp_df['_variance'] > 0.1) & (temp_df['_variance'] <= 0.25)).sum()  # 10-25%
+                moderate_delay_count = ((temp_df['_variance'] > 0.25) & (temp_df['_variance'] <= 0.4)).sum()  # 25-40%
+                severe_delay_count = (temp_df['_variance'] > 0.4).sum()  # >40%
+
+                variance_breakdown = {
+                    'onTime': int(on_time_count),  # ≤10% variance
+                    'onTimePct': round((on_time_count / len(df)) * 100, 1),
+                    'minorDelay': int(minor_delay_count),  # 10-25% variance
+                    'minorDelayPct': round((minor_delay_count / len(df)) * 100, 1),
+                    'moderateDelay': int(moderate_delay_count),  # 25-40% variance
+                    'moderateDelayPct': round((moderate_delay_count / len(df)) * 100, 1),
+                    'severeDelay': int(severe_delay_count),  # >40% variance
+                    'severeDelayPct': round((severe_delay_count / len(df)) * 100, 1),
+                    'avgVariancePct': avg_variance_pct  # Average variance as %
+                }
+            else:
+                # Fallback: check if Aléas Industriels column exists and has values
+                aleas_col = self._col_or_none(df, ['Aléas Industriels', 'Aleas_Industriels', 'aleas'])
+                if aleas_col:
+                    # Only count rows with meaningful issue text (not NaN, not empty)
+                    rework_rate = round((df[aleas_col].notna().sum() / len(df)) * 100, 1)
+                else:
+                    rework_rate = 8.5
+                variance_breakdown = None
 
             # Throughput = average pieces per hour
-            pieces_col = self._col_or_none(df, ['Nombre pièces', 'Nombre_pieces', 'nombre_pieces'])
+            pieces_col = self._col_or_none(df, ['Nombre pièces', 'Nombre_pieces', 'nombre_pieces', 'Nombre pi�ces'])
             if pieces_col:
-                throughput = round(float(df[pieces_col].dropna().astype(float).mean()), 1)
+                try:
+                    throughput = round(float(df[pieces_col].dropna().astype(float).mean()), 1)
+                except:
+                    throughput = 17.0
             else:
                 throughput = 17.0
 
             # Find bottleneck - operation with highest average time
-            poste_col = self._col_or_none(df, ['Poste', 'poste', 'Nom'])
-            if poste_col and temps_reel_col:
-                bottleneck_row = df.groupby(poste_col)[temps_reel_col].mean().idxmax()
+            nom_col = self._col_or_none(df, ['Nom', 'nom'])
+            if nom_col and temps_reel_col and temps_reel_hours is not None:
+                # Create temporary dataframe with parsed times
+                temp_df = df.copy()
+                temp_df['_temps_reel_hours'] = temps_reel_hours
+                bottleneck_row = temp_df.groupby(nom_col)['_temps_reel_hours'].mean().idxmax()
                 bottleneck = str(bottleneck_row) if pd.notna(bottleneck_row) else 'Assemblage'
             else:
                 bottleneck = 'Assemblage'
@@ -278,14 +386,7 @@ class KPICalculator:
             # Total cases
             total_cases = len(df)
 
-            # Average cycle time
-            temps_prevu_col = self._col_or_none(df, ['Temps Prévu', 'Temps_Prevu', 'temps_prevu'])
-            if temps_prevu_col:
-                avg_cycle = round(float(df[temps_prevu_col].dropna().astype(float).mean()), 1)
-            else:
-                avg_cycle = 22.5
-
-            return {
+            result = {
                 'totalWIP': total_wip,
                 'avgLeadTime': avg_lead,
                 'reworkRate': rework_rate,
@@ -296,6 +397,12 @@ class KPICalculator:
                 'totalCases': total_cases,
                 'avgCycleTime': avg_cycle
             }
+
+            # Add variance breakdown if available
+            if variance_breakdown:
+                result['varianceBreakdown'] = variance_breakdown
+
+            return result
         except Exception as e:
             print(f"Error calculating process mining KPIs from MES data: {e}")
             return self._mock_process_mining_kpis()
@@ -328,8 +435,21 @@ class KPICalculator:
             nom_col = self._col_or_none(df, ['Nom', 'nom'])
             temps_reel_col = self._col_or_none(df, ['Temps Réel', 'Temps_Reel', 'temps_reel'])
             temps_prevu_col = self._col_or_none(df, ['Temps Prévu', 'Temps_Prevu', 'temps_prevu'])
-            pieces_col = self._col_or_none(df, ['Nombre pièces', 'Nombre_pieces', 'nombre_pieces'])
+            pieces_col = self._col_or_none(df, ['Nombre pièces', 'Nombre_pieces', 'nombre_pieces', 'Nombre pi�ces'])
             aleas_col = self._col_or_none(df, ['Aléas Industriels', 'Aleas_Industriels', 'aleas'])
+
+            # Convert time columns to hours
+            temps_reel_hours = self._convert_time_column_to_hours(df, temps_reel_col) if temps_reel_col else None
+            temps_prevu_hours = self._convert_time_column_to_hours(df, temps_prevu_col) if temps_prevu_col else None
+
+            # Add parsed columns to dataframe
+            if temps_reel_hours is not None:
+                df = df.copy()
+                df['_temps_reel_hours'] = temps_reel_hours
+            if temps_prevu_hours is not None:
+                if '_temps_reel_hours' not in df.columns:
+                    df = df.copy()
+                df['_temps_prevu_hours'] = temps_prevu_hours
 
             # Group by operation name
             if nom_col is None:
@@ -342,33 +462,57 @@ class KPICalculator:
                 # Calculate metrics
                 wip = len(op_data)
 
-                avg_cycle = round(float(op_data[temps_prevu_col].mean()), 1) if temps_prevu_col else 22.0
-                avg_real = round(float(op_data[temps_reel_col].mean()), 1) if temps_reel_col else 25.0
+                # Use parsed time columns
+                if '_temps_prevu_hours' in op_data.columns:
+                    avg_cycle = round(float(op_data['_temps_prevu_hours'].mean()), 2)
+                else:
+                    avg_cycle = 0.42
+
+                if '_temps_reel_hours' in op_data.columns:
+                    avg_real = round(float(op_data['_temps_reel_hours'].mean()), 2)
+                else:
+                    avg_real = 0.48
 
                 # Waiting time = real time - planned time
-                avg_waiting = round(max(0, avg_real - avg_cycle), 1)
+                avg_waiting = round(max(0, avg_real - avg_cycle), 2)
 
                 case_count = len(op_data)
 
-                # Rework rate = % of cases with issues
-                if aleas_col:
-                    rework = round((op_data[aleas_col].notna().sum() / len(op_data)) * 100, 1)
+                # Rework rate = % of cases where actual > planned by >40%
+                # Also calculate average variance for this operation
+                if '_temps_reel_hours' in op_data.columns and '_temps_prevu_hours' in op_data.columns:
+                    variance = (op_data['_temps_reel_hours'] - op_data['_temps_prevu_hours']) / op_data['_temps_prevu_hours']
+                    rework_count = (variance > 0.4).sum()
+                    rework = round((rework_count / len(op_data)) * 100, 1)
+                    avg_variance_pct = round(float(variance.mean() * 100), 1)  # Average variance as %
                 else:
-                    rework = 0.0
+                    # Fallback to aleas column
+                    if aleas_col:
+                        rework = round((op_data[aleas_col].notna().sum() / len(op_data)) * 100, 1)
+                    else:
+                        rework = 0.0
+                    avg_variance_pct = None
 
-                throughput_val = round(float(op_data[pieces_col].mean()), 1) if pieces_col else 15.0
+                # Throughput
+                if pieces_col:
+                    try:
+                        throughput_val = round(float(op_data[pieces_col].mean()), 1)
+                    except:
+                        throughput_val = 15.0
+                else:
+                    throughput_val = 15.0
 
-                # Determine bottleneck severity based on waiting time
-                if avg_waiting > 10:
+                # Determine bottleneck severity based on waiting time (in hours)
+                if avg_waiting > 0.5:  # More than 30 minutes waiting
                     severity = 'high'
-                elif avg_waiting > 5:
+                elif avg_waiting > 0.25:  # More than 15 minutes waiting
                     severity = 'medium'
-                elif avg_waiting > 2:
+                elif avg_waiting > 0.1:  # More than 6 minutes waiting
                     severity = 'low'
                 else:
                     severity = 'none'
 
-                summaries.append({
+                op_summary = {
                     'operation': str(operation),
                     'currentWIP': wip,
                     'avgCycleTime': avg_cycle,
@@ -377,7 +521,13 @@ class KPICalculator:
                     'reworkRate': rework,
                     'throughput': throughput_val,
                     'bottleneckSeverity': severity
-                })
+                }
+
+                # Add variance percentage if available
+                if avg_variance_pct is not None:
+                    op_summary['avgVariancePct'] = avg_variance_pct
+
+                summaries.append(op_summary)
 
             return summaries
         except Exception as e:

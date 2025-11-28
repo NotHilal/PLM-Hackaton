@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { OverviewTabComponent } from './overview-tab/overview-tab';
@@ -37,6 +37,11 @@ export class App {
   sidenavOpen = true;
   fileVersionsModalOpen = false;
 
+  // ViewChild references to components for refreshing
+  @ViewChild(PythonOverviewComponent) pythonOverviewComponent?: PythonOverviewComponent;
+  @ViewChild(PythonInsightsComponent) pythonInsightsComponent?: PythonInsightsComponent;
+  @ViewChild(EventLogComponent) eventLogComponent?: EventLogComponent;
+
   /**
    * Navigate to a different route
    */
@@ -70,5 +75,32 @@ export class App {
    */
   closeFileVersionsModal(): void {
     this.fileVersionsModalOpen = false;
+  }
+
+  /**
+   * Handle files switched event - refresh all data displays
+   */
+  onFilesSwitched(): void {
+    console.log('📊 Files switched - refreshing all pages...');
+
+    // Refresh Python Overview if it's loaded
+    if (this.pythonOverviewComponent) {
+      console.log('🔄 Refreshing Python Overview component');
+      this.pythonOverviewComponent.refresh();
+    }
+
+    // Refresh Python Insights if it's loaded
+    if (this.pythonInsightsComponent) {
+      console.log('🔄 Refreshing Python Insights component');
+      this.pythonInsightsComponent.refresh();
+    }
+
+    // Refresh Event Log if it's loaded
+    if (this.eventLogComponent) {
+      console.log('🔄 Refreshing Event Log component');
+      this.eventLogComponent.refresh();
+    }
+
+    console.log('✅ All components refreshed');
   }
 }

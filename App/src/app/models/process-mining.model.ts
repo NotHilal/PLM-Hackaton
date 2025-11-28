@@ -1,5 +1,17 @@
 // Process Mining Models
 
+export interface VarianceBreakdown {
+  onTime: number;
+  onTimePct: number;
+  minorDelay: number;
+  minorDelayPct: number;
+  moderateDelay: number;
+  moderateDelayPct: number;
+  severeDelay: number;
+  severeDelayPct: number;
+  avgVariancePct: number;
+}
+
 export interface ProcessMiningKPIs {
   totalWIP: number;
   avgLeadTime: number;
@@ -10,6 +22,7 @@ export interface ProcessMiningKPIs {
   deltaLeadTime: number;
   totalCases: number;
   avgCycleTime: number;
+  varianceBreakdown?: VarianceBreakdown;
 }
 
 export interface OperationSummary {
@@ -21,6 +34,7 @@ export interface OperationSummary {
   reworkRate: number;
   throughput: number;
   bottleneckSeverity: 'none' | 'low' | 'medium' | 'high';
+  avgVariancePct?: number;
 }
 
 export interface Bottleneck {

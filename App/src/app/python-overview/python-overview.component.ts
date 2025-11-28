@@ -34,7 +34,7 @@ export class PythonOverviewComponent implements OnInit, OnDestroy {
   error: string | null = null;
 
   // Chart options
-  view: [number, number] = [600, 300];
+  view: [number, number] = [1200, 400];
   colorScheme: any = {
     domain: ['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b']
   };
@@ -138,5 +138,44 @@ export class PythonOverviewComponent implements OnInit, OnDestroy {
       'none': 'badge-success'
     };
     return classes[severity] || classes['none'];
+  }
+
+  /**
+   * Get top 10 WIP data for chart (to prevent overflow)
+   */
+  getTopWIPData(): ChartDataPoint[] {
+    if (!this.wipChartData || this.wipChartData.length === 0) {
+      return [];
+    }
+    // Sort by value descending and take top 10
+    return [...this.wipChartData]
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 10);
+  }
+
+  /**
+   * Get top 10 cycle/waiting data for chart (to prevent overflow)
+   * Converts hours to minutes for display
+   */
+  getTopCycleWaitingData(): GroupedChartDataPoint[] {
+    if (!this.cycleWaitingChartData || this.cycleWaitingChartData.length === 0) {
+      return [];
+    }
+    // Sort by total time (sum of cycle + waiting) and take top 10
+    // Convert from hours to minutes by multiplying by 60
+    return [...this.cycleWaitingChartData]
+      .sort((a, b) => {
+        const totalA = a.series.reduce((sum, item) => sum + item.value, 0);
+        const totalB = b.series.reduce((sum, item) => sum + item.value, 0);
+        return totalB - totalA;
+      })
+      .slice(0, 10)
+      .map(item => ({
+        name: item.name,
+        series: item.series.map(s => ({
+          name: s.name,
+          value: s.value * 60  // Convert hours to minutes
+        }))
+      }));
   }
 }
