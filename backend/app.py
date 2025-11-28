@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+import sys
+import io
+
+# Set UTF-8 encoding for Windows console
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
@@ -7,8 +16,13 @@ from datetime import datetime, timedelta
 import os
 import json
 import shutil
+from dotenv import load_dotenv
 from kpi_calculator import KPICalculator
 from event_log_generator import EventLogGenerator
+from groq import Groq
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for Angular frontend
@@ -28,6 +42,18 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Global KPI calculator instance
 kpi_calc = None
+
+# Initialize Groq client (API key from environment variable)
+groq_client = None
+try:
+    groq_api_key = os.environ.get('GROQ_API_KEY')
+    if groq_api_key:
+        groq_client = Groq(api_key=groq_api_key)
+        print("✅ Groq AI client initialized")
+    else:
+        print("⚠️ GROQ_API_KEY not found in environment variables")
+except Exception as e:
+    print(f"⚠️ Could not initialize Groq client: {e}")
 
 
 def sync_active_files_from_registry():
@@ -738,6 +764,114 @@ def export_event_log():
                         as_attachment=True,
                         download_name='manufacturing_event_log.csv')
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v2/chat', methods=['POST'])
+def chat_with_ai():
+    """Chat endpoint using Groq AI"""
+    try:
+        if not groq_client:
+            return jsonify({
+                'error': 'AI service not configured. Please set GROQ_API_KEY environment variable.'
+            }), 503
+
+        data = request.get_json()
+        user_message = data.get('message', '')
+        insights_context = data.get('insights', {})
+
+        if not user_message:
+            return jsonify({'error': 'Message is required'}), 400
+
+        # Get real data from KPI calculator
+        context_parts = ["=== DONNÉES RÉELLES DE FABRICATION ===\n"]
+
+        if kpi_calc:
+            try:
+                # Get Process Mining KPIs
+                pm_kpis = kpi_calc.calculate_process_mining_kpis()
+                context_parts.append("📊 KPIs Process Mining:")
+                context_parts.append(f"- WIP (Work in Progress): {pm_kpis.get('wip', 'N/A')} unités")
+                context_parts.append(f"- Lead Time: {pm_kpis.get('lead_time_days', 'N/A')} jours")
+                context_parts.append(f"- Cycle Time: {pm_kpis.get('cycle_time_hours', 'N/A')} heures")
+                context_parts.append(f"- Taux de rework: {pm_kpis.get('rework_rate', 'N/A')}%")
+                context_parts.append(f"- Throughput: {pm_kpis.get('throughput', 'N/A')} unités/jour")
+
+                # Get Operations data
+                operations = kpi_calc.calculate_operations_summary()
+                if operations:
+                    context_parts.append(f"\n🏭 Opérations ({len(operations)} stations):")
+                    for op in operations[:5]:  # Top 5 operations
+                        context_parts.append(f"- {op.get('operation_name', 'N/A')}: WIP={op.get('wip', 'N/A')}, Temps d'attente={op.get('waiting_time_avg', 'N/A')}h")
+
+                # Get Bottlenecks
+                bottlenecks = kpi_calc.identify_bottlenecks()
+                if bottlenecks:
+                    context_parts.append(f"\n🔴 Goulots d'étranglement identifiés ({len(bottlenecks)}):")
+                    for bn in bottlenecks[:3]:  # Top 3 bottlenecks
+                        context_parts.append(f"- {bn.get('operation_name', 'N/A')}: WIP={bn.get('wip', 'N/A')}, Temps d'attente={bn.get('waiting_time', 'N/A')}h, Sévérité={bn.get('severity', 'N/A')}")
+
+            except Exception as e:
+                context_parts.append(f"⚠️ Erreur lors du chargement des données: {str(e)}")
+
+        # Add insights context if provided
+        if insights_context:
+            context_parts.append("\n=== INSIGHTS AI ===")
+
+            if 'summary' in insights_context:
+                context_parts.append(f"\n📝 Résumé: {insights_context['summary']}")
+
+            if 'insights' in insights_context and len(insights_context['insights']) > 0:
+                context_parts.append("\n💡 Insights détectés:")
+                for insight in insights_context['insights'][:5]:
+                    context_parts.append(f"- {insight.get('title', '')}: {insight.get('description', '')} (Impact: {insight.get('impact', '')})")
+
+            if 'recommendations' in insights_context and len(insights_context['recommendations']) > 0:
+                context_parts.append("\n🎯 Recommandations:")
+                for rec in insights_context['recommendations'][:5]:
+                    context_parts.append(f"- {rec.get('action', '')} (Priorité: {rec.get('priority', '')}, Coût: {rec.get('cost', '')})")
+
+        context = "\n".join(context_parts)
+
+        # Create improved system prompt
+        system_prompt = """Tu es un assistant AI expert en analyse de processus de fabrication et PLM (Product Lifecycle Management).
+        Tu as accès aux données RÉELLES de production de l'usine.
+
+        RÈGLES IMPORTANTES:
+        1. Utilise UNIQUEMENT les données fournies dans le contexte - ne jamais inventer ou deviner des chiffres
+        2. Si une donnée n'est pas dans le contexte, dis clairement "Je n'ai pas cette information"
+        3. Cite toujours les chiffres exacts du contexte dans tes réponses
+        4. Réponds en français de manière claire, professionnelle et concise
+        5. Si on te demande des données que tu n'as pas, propose de consulter les tableaux de bord
+
+        Base TOUTES tes réponses sur les données réelles fournies ci-dessous."""
+
+        # Call Groq API
+        chat_completion = groq_client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": system_prompt
+                },
+                {
+                    "role": "user",
+                    "content": f"{context}\n\n=== QUESTION DE L'UTILISATEUR ===\n{user_message}"
+                }
+            ],
+            model="llama-3.1-8b-instant",
+            temperature=0.3,  # Lower temperature for more factual responses
+            max_tokens=1000
+        )
+
+        response_text = chat_completion.choices[0].message.content
+
+        return jsonify({
+            'response': response_text,
+            'model': 'llama-3.1-8b-instant'
+        }), 200
+
+    except Exception as e:
+        print(f"❌ Error in chat endpoint: {e}")
         return jsonify({'error': str(e)}), 500
 
 

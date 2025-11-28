@@ -108,4 +108,88 @@
       </div>
     </div>
   </div>
+
+  <!-- AI Chatbot Section -->
+  <div class="chatbot-section">
+    <div class="chatbot-container" [class.open]="isChatOpen">
+      <!-- Chatbot Header -->
+      <div class="chatbot-header" (click)="toggleChat()">
+        <div class="chatbot-header-content">
+          <span class="chatbot-icon">🤖</span>
+          <div class="chatbot-title">
+            <h3>Assistant AI</h3>
+            <p>Posez vos questions sur les insights</p>
+          </div>
+        </div>
+        <button class="toggle-btn">
+          {{ isChatOpen ? '▼' : '▲' }}
+        </button>
+      </div>
+
+      <!-- Chatbot Body -->
+      <div class="chatbot-body" *ngIf="isChatOpen">
+        <div class="chat-messages" #chatMessagesContainer>
+          <div
+            *ngFor="let message of chatMessages"
+            class="message"
+            [class.user-message]="message.isUser"
+            [class.bot-message]="!message.isUser">
+            <div class="message-content">
+              <div class="message-avatar" *ngIf="!message.isUser">🤖</div>
+              <div class="message-bubble">
+                <p style="white-space: pre-wrap;">{{ message.text }}</p>
+                <span class="message-time">{{ message.timestamp | date: 'HH:mm' }}</span>
+              </div>
+              <div class="message-avatar" *ngIf="message.isUser">👤</div>
+            </div>
+          </div>
+
+          <!-- Typing Indicator -->
+          <div class="message bot-message" *ngIf="isTyping">
+            <div class="message-content">
+              <div class="message-avatar">🤖</div>
+              <div class="message-bubble typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="chat-input-container">
+          <button class="clear-chat-btn" (click)="clearChat()" title="Effacer la conversation">
+            🗑️
+          </button>
+          <input
+            type="text"
+            class="chat-input"
+            [(ngModel)]="userInput"
+            (keyup.enter)="sendMessage()"
+            placeholder="Posez votre question..."
+            [disabled]="isTyping">
+          <button
+            class="send-btn"
+            (click)="sendMessage()"
+            [disabled]="!userInput.trim() || isTyping">
+            📤
+          </button>
+        </div>
+
+        <!-- Quick Questions -->
+        <div class="quick-questions">
+          <button class="quick-question-btn" (click)="userInput = 'Quels sont les goulots d\'étranglement?'; sendMessage()">
+            Goulots d'étranglement
+          </button>
+          <button class="quick-question-btn" (click)="userInput = 'Quelles sont les recommandations?'; sendMessage()">
+            Recommandations
+          </button>
+          <button class="quick-question-btn" (click)="userInput = 'Quelle est la priorité?'; sendMessage()">
+            Priorités
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

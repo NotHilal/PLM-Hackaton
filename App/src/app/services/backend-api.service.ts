@@ -313,4 +313,16 @@ export class BackendApiService {
   getCurrentInsights(): AIInsights | null {
     return this.insightsSubject.value;
   }
+
+  // ==================== CHAT ENDPOINT ====================
+
+  /**
+   * Chat with AI using Groq
+   */
+  chatWithAI(message: string, insights?: AIInsights): Observable<{ response: string; model: string }> {
+    return this.http.post<{ response: string; model: string }>(`${this.baseUrl}/v2/chat`, {
+      message,
+      insights
+    });
+  }
 }
