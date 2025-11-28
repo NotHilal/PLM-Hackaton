@@ -17,8 +17,77 @@
         ✖
       </button>
     </div>
-    <div class="results-count">
-      <span class="count-badge">{{ filteredEmployees().length }}</span> employé(s)
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section" *ngIf="dataService.employees().length > 0">
+    <div class="filters-row">
+      <div class="filter-item">
+        <label class="filter-label">Qualification</label>
+        <select
+          class="filter-select"
+          [value]="selectedQualification()"
+          (change)="onQualificationChange($any($event.target).value)">
+          <option value="all">Toutes</option>
+          <option *ngFor="let qual of uniqueQualifications().slice(1)" [value]="qual">
+            {{ qual }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label class="filter-label">Expérience</label>
+        <select
+          class="filter-select"
+          [value]="selectedExperience()"
+          (change)="onExperienceChange($any($event.target).value)">
+          <option value="all">Tous</option>
+          <option *ngFor="let exp of uniqueExperiences().slice(1)" [value]="exp">
+            {{ exp }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label class="filter-label">Âge</label>
+        <select
+          class="filter-select"
+          [value]="selectedAgeRange()"
+          (change)="onAgeRangeChange($any($event.target).value)">
+          <option value="all">Tous</option>
+          <option value="18-30">18-30 ans</option>
+          <option value="31-40">31-40 ans</option>
+          <option value="41-50">41-50 ans</option>
+          <option value="51+">51+ ans</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label class="filter-label">Coût Horaire</label>
+        <select
+          class="filter-select"
+          [value]="selectedSalaryRange()"
+          (change)="onSalaryRangeChange($any($event.target).value)">
+          <option value="all">Tous</option>
+          <option value="0-20">0-20€/h</option>
+          <option value="21-35">21-35€/h</option>
+          <option value="36-50">36-50€/h</option>
+          <option value="51+">51+€/h</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="filter-footer">
+      <div class="results-count">
+        <span class="count-badge">{{ filteredEmployees().length }}</span> employé(s)
+      </div>
+      <button
+        *ngIf="hasActiveFilters()"
+        class="clear-filters-btn"
+        (click)="clearAllFilters()"
+        title="Réinitialiser tous les filtres">
+        🔄 Réinitialiser
+      </button>
     </div>
   </div>
 
@@ -33,9 +102,9 @@
   <div *ngIf="dataService.employees().length > 0 && filteredEmployees().length === 0" class="empty-state">
     <div class="empty-icon">🔍</div>
     <h3>Aucun résultat trouvé</h3>
-    <p>Essayez de modifier votre recherche</p>
-    <button class="btn-secondary" (click)="clearSearch()">
-      Effacer la recherche
+    <p>Essayez de modifier vos critères de recherche ou filtres</p>
+    <button class="btn-secondary" (click)="clearAllFilters()">
+      Réinitialiser tous les filtres
     </button>
   </div>
 
