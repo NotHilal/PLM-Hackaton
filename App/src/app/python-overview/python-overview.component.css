@@ -54,43 +54,76 @@
   margin-bottom: var(--spacing-lg);
 }
 
-/* Responsive */
+/* Grid container for charts */
+.grid {
+  display: grid;  /* Enables grid layout */
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);  /* 2 columns on larger screens */
+  gap: var(--spacing-lg);  /* Space between charts */
+  margin-bottom: var(--spacing-xl);
+  width: 100%;  /* Full width of parent */
+  max-width: 100%;  /* Prevent overflow */
+  box-sizing: border-box;
+}
+
+/* Individual chart wrapper */
+.chart-container {
+  width: 100%;  /* Full width of grid cell */
+  max-width: 100%;  /* No overflow */
+  height: 100%;  /* Adjustable height - change if needed */
+  background: var(--bg-secondary);  /* Match your theme */
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  overflow: hidden;  /* Cut off any internal overflow */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Chart title styling */
+.chart-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+/* Force ngx-charts to respect container (deep override for labels/overflow) */
+::ng-deep .ngx-charts-outer {
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+::ng-deep .x.axis .tick text {
+  font-size: 0.75rem;  /* Smaller labels */
+  max-width: 60px;  /* Clip long labels */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Responsive adjustments */
 @media (max-width: 1200px) {
-  .python-overview-container {
-    padding: var(--spacing-lg);
+  .grid-cols-2 {
+    grid-template-columns: 1fr;  /* Stack to 1 column */
   }
-
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-md);
-  }
-
-  .grid-cols-4 {
-    grid-template-columns: repeat(2, 1fr);
+  .chart-wrapper {
+    height: 350px;  /* Smaller on medium screens */
   }
 }
 
 @media (max-width: 768px) {
-  .python-overview-container {
-    padding: var(--spacing-md);
+  .chart-wrapper {
+    height: 300px;  /* Even smaller on mobile */
+    padding: var(--spacing-sm);
   }
-
-  .page-title {
-    font-size: 1.5rem;
-  }
-
-  .kpi-header {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .grid-cols-2 {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .kpi-header {
-    grid-template-columns: 1fr;
+  ::ng-deep .x.axis .tick text {
+    font-size: 0.65rem;  /* Tiny labels for mobile */
+    max-width: 40px;
   }
 }

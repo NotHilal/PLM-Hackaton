@@ -1,57 +1,57 @@
 case_id,activity,operation,timestamp_start,timestamp_end,station_id,result,rework_flag,duration_hours,issue_description
-CASE_0000,Montage train atterissage,Montage train atterissage,2025-11-28 01:04:26.823779,2025-11-28 02:04:26.823779,STATION_01,Failure,True,1.0,Rupture outillage spécifique
-CASE_0001,Assemblage moteur / fuselage / train atterissage,Assemblage moteur / fuselage / train atterissage,2025-11-28 02:04:26.824011,2025-11-28 03:04:26.824011,STATION_02,Failure,True,1.0,Dysfonctionnement machine soudure
-CASE_0002,Assemblage moteur / fuselage / train atterissage,Assemblage moteur / fuselage / train atterissage,2025-11-28 03:04:26.824171,2025-11-28 04:04:26.824171,STATION_03,Failure,True,1.0,Problème température atelier
-CASE_0003,Assemblage visserie fuselage partie basse,Assemblage visserie fuselage partie basse,2025-11-28 04:04:26.824302,2025-11-28 05:04:26.824302,STATION_04,Failure,True,1.0,Défaillance contrôle qualité
-CASE_0004,Assemblage visserie train atterissage,Assemblage visserie train atterissage,2025-11-28 05:04:26.824424,2025-11-28 06:04:26.824424,STATION_05,Failure,True,1.0,Usure équipements serrage
-CASE_0005,Assemblage fuselage centrale,Assemblage fuselage centrale,2025-11-28 06:04:26.824546,2025-11-28 07:04:26.824546,STATION_06,Failure,True,1.0,Incident logiciel robots
-CASE_0006,Assemblage fuselage centrale,Assemblage fuselage centrale,2025-11-28 07:04:26.824757,2025-11-28 08:04:26.824757,STATION_07,Failure,True,1.0,Panne système ventilation
-CASE_0007,Assemblage fuselage centrale,Assemblage fuselage centrale,2025-11-28 08:04:26.824898,2025-11-28 09:04:26.824898,STATION_08,Failure,True,1.0,Défaut synchronisation
-CASE_0008,Assemblage fuselage centrale,Assemblage fuselage centrale,2025-11-28 09:04:26.825022,2025-11-28 10:04:26.825022,STATION_09,Failure,True,1.0,Interruption réseau
-CASE_0009,Assemblage queue avion,Assemblage queue avion,2025-11-28 10:04:26.825141,2025-11-28 11:04:26.825141,STATION_10,Failure,True,1.0,Incident manutention
-CASE_0010,Assemblage queue avion,Assemblage queue avion,2025-11-28 11:04:26.825268,2025-11-28 12:04:26.825268,STATION_11,Failure,True,1.0,Dérive calibration optique
-CASE_0011,Assemblage queue avion,Assemblage queue avion,2025-11-28 12:04:26.825385,2025-11-28 13:04:26.825385,STATION_12,Failure,True,1.0,Usure gabarits
-CASE_0012,Assemblage queue avion,Assemblage queue avion,2025-11-28 13:04:26.825499,2025-11-28 14:04:26.825499,STATION_13,Failure,True,1.0,Contamination zone
-CASE_0013,Assemblage queue avion,Assemblage queue avion,2025-11-28 14:04:26.825611,2025-11-28 15:04:26.825611,STATION_14,Failure,True,1.0,Défaillance refroidissement
-CASE_0014,Assemblage queue avion,Assemblage queue avion,2025-11-28 15:04:26.825722,2025-11-28 16:04:26.825722,STATION_15,Failure,True,1.0,Perte traçabilité
-CASE_0015,Assemblage queue avion,Assemblage queue avion,2025-11-28 16:04:26.825860,2025-11-28 17:04:26.825860,STATION_16,Failure,True,1.0,Dysfonctionnement guidage
-CASE_0016,Assemblage queue avion,Assemblage queue avion,2025-11-28 17:04:26.825982,2025-11-28 18:04:26.825982,STATION_17,Failure,True,1.0,Incident maintenance
-CASE_0017,Assemblage queue avion,Assemblage queue avion,2025-11-28 18:04:26.826106,2025-11-28 19:04:26.826106,STATION_18,Failure,True,1.0,Problème lubrification
-CASE_0018,Assemblage cockpit,Assemblage cockpit,2025-11-28 19:04:26.826241,2025-11-28 20:04:26.826241,STATION_19,Failure,True,1.0,Défaut communication
-CASE_0019,Assemblage aile gauche,Assemblage aile gauche,2025-11-28 20:04:26.826352,2025-11-28 21:04:26.826352,STATION_20,Failure,True,1.0,Déformation supports
-CASE_0020,Assemblage aile gauche,Assemblage aile gauche,2025-11-28 21:04:26.826463,2025-11-28 22:04:26.826463,STATION_21,Failure,True,1.0,Impact variations pression
-CASE_0021,Assemblage aile gauche,Assemblage aile gauche,2025-11-28 22:04:26.826574,2025-11-28 23:04:26.826574,STATION_22,Failure,True,1.0,Défaillance contrôle qualité
-CASE_0022,Assemblage aile gauche,Assemblage aile gauche,2025-11-28 23:04:26.826687,2025-11-29 00:04:26.826687,STATION_23,Failure,True,1.0,Incident ventilation
-CASE_0023,Assemblage aile gauche,Assemblage aile gauche,2025-11-29 00:04:26.826804,2025-11-29 01:04:26.826804,STATION_24,Failure,True,1.0,Dérive calibration
-CASE_0024,Assemblage aile gauche,Assemblage aile gauche,2025-11-29 01:04:26.826914,2025-11-29 02:04:26.826914,STATION_25,Failure,True,1.0,Contamination
-CASE_0025,Assemblage aile gauche,Assemblage aile gauche,2025-11-29 02:04:26.827052,2025-11-29 03:04:26.827052,STATION_26,Failure,True,1.0,Dysfonctionnement transport
-CASE_0026,Assemblage réacteurs,Assemblage réacteurs,2025-11-29 03:04:26.827168,2025-11-29 04:04:26.827168,STATION_27,Failure,True,1.0,Surchauffe critique
-CASE_0027,Fixation réacteur aile gauche,Fixation réacteur aile gauche,2025-11-29 04:04:26.827276,2025-11-29 05:04:26.827276,STATION_28,Failure,True,1.0,Perte référencement
-CASE_0028,Fixation réacteur aile gauche,Fixation réacteur aile gauche,2025-11-29 05:04:26.827385,2025-11-29 06:04:26.827385,STATION_29,Failure,True,1.0,Usure systèmes serrage
-CASE_0029,Fixation réacteur aile gauche,Fixation réacteur aile gauche,2025-11-29 06:04:26.827493,2025-11-29 07:04:26.827493,STATION_30,Failure,True,1.0,Incident électrique
-CASE_0030,Assemblage train atterissage gauche,Assemblage train atterissage gauche,2025-11-29 07:04:26.827599,2025-11-29 08:04:26.827599,STATION_31,Failure,True,1.0,Défaillance majeure systèmes
-CASE_0031,Assemblage train atterissage gauche,Assemblage train atterissage gauche,2025-11-29 08:04:26.827705,2025-11-29 09:04:26.827705,STATION_32,Failure,True,1.0,Problème communication inter-systèmes
-CASE_0032,Assemblage train atterissage gauche,Assemblage train atterissage gauche,2025-11-29 09:04:26.827816,2025-11-29 10:04:26.827816,STATION_33,Failure,True,1.0,Dysfonctionnement guidage automatisé
-CASE_0033,Assemblage train atterissage gauche,Assemblage train atterissage gauche,2025-11-29 10:04:26.827923,2025-11-29 11:04:26.827923,STATION_34,Failure,True,1.0,Contamination zone travail sensible
-CASE_0034,Fixation aile gauche avion / train atterissage,Fixation aile gauche avion / train atterissage,2025-11-29 11:04:26.828031,2025-11-29 12:04:26.828031,STATION_35,Failure,True,1.0,Défaillance critique système contrôle
-CASE_0035,Assemblage aile droite,Assemblage aile droite,2025-11-29 12:04:26.828137,2025-11-29 13:04:26.828137,STATION_36,Failure,True,1.0,Usure prématurée outillages précision
-CASE_0036,Assemblage aile droite,Assemblage aile droite,2025-11-29 13:04:26.828243,2025-11-29 14:04:26.828243,STATION_37,Failure,True,1.0,Impact variations thermiques
-CASE_0037,Assemblage aile droite,Assemblage aile droite,2025-11-29 14:04:26.828349,2025-11-29 15:04:26.828349,STATION_38,Failure,True,1.0,Désynchronisation postes travail
-CASE_0038,Assemblage aile droite,Assemblage aile droite,2025-11-29 15:04:26.828460,2025-11-29 16:04:26.828460,STATION_39,Failure,True,1.0,Incident ventilation affectant qualité
-CASE_0039,Assemblage aile droite,Assemblage aile droite,2025-11-29 16:04:26.828567,2025-11-29 17:04:26.828567,STATION_40,Failure,True,1.0,Dérive calibration instruments
-CASE_0040,Assemblage aile droite,Assemblage aile droite,2025-11-29 17:04:26.828673,2025-11-29 18:04:26.828673,STATION_41,Failure,True,1.0,Contamination zones critiques
-CASE_0041,Assemblage aile droite,Assemblage aile droite,2025-11-29 18:04:26.828894,2025-11-29 19:04:26.828894,STATION_42,Failure,True,1.0,Dysfonctionnement transport pièces
-CASE_0042,Fixation réacteur aile droite,Fixation réacteur aile droite,2025-11-29 19:04:26.829015,2025-11-29 20:04:26.829015,STATION_43,Failure,True,1.0,Défaillance protocoles sécurité industrielle
-CASE_0043,Fixation réacteur aile droite,Fixation réacteur aile droite,2025-11-29 20:04:26.829138,2025-11-29 21:04:26.829138,STATION_44,Failure,True,1.0,Problème calibration systèmes
-CASE_0044,Fixation réacteur aile droite,Fixation réacteur aile droite,2025-11-29 21:04:26.829313,2025-11-29 22:04:26.829313,STATION_45,Failure,True,1.0,Impact vibrations sur précision
-CASE_0045,Assemblage train atterissage droit,Assemblage train atterissage droit,2025-11-29 22:04:26.829444,2025-11-29 23:04:26.829444,STATION_46,Failure,True,1.0,Perte traçabilité composants
-CASE_0046,Assemblage train atterissage droit,Assemblage train atterissage droit,2025-11-29 23:04:26.829659,2025-11-30 00:04:26.829659,STATION_47,Failure,True,1.0,Dysfonctionnement systèmes guidage
-CASE_0047,Assemblage train atterissage droit,Assemblage train atterissage droit,2025-11-30 00:04:26.829884,2025-11-30 01:04:26.829884,STATION_48,Failure,True,1.0,Contamination environnement production
-CASE_0048,Fixation aile droit avion / train atterissage,Fixation aile droit avion / train atterissage,2025-11-30 01:04:26.830009,2025-11-30 02:04:26.830009,STATION_49,Failure,True,1.0,Défaillance critique contrôle qualité
-CASE_0049,Fixation bout ailes,Fixation bout ailes,2025-11-30 02:04:26.830122,2025-11-30 03:04:26.830122,STATION_50,Failure,True,1.0,Dérive paramètres production
-CASE_0050,Passage faisceaux électrique ailes,Passage faisceaux électrique ailes,2025-11-30 03:04:26.830379,2025-11-30 04:04:26.830379,STATION_51,Failure,True,1.0,Problème connectique électrique
-CASE_0051,Fixation lumières bout ailes,Fixation lumières bout ailes,2025-11-30 04:04:26.830525,2025-11-30 05:04:26.830525,STATION_52,Failure,True,1.0,Défaut adhérence supports
-CASE_0052,Stickers cockpit,Stickers cockpit,2025-11-30 05:04:26.830648,2025-11-30 06:04:26.830648,STATION_53,Failure,True,1.0,Problème impression marquages
-CASE_0053,Stickers réacteur,Stickers réacteur,2025-11-30 06:04:26.830765,2025-11-30 07:04:26.830765,STATION_54,Failure,True,1.0,Défaut positionnement étiquettes
-CASE_0054,Stickers fuselage gauche,Stickers fuselage gauche,2025-11-30 07:04:26.830877,2025-11-30 08:04:26.830877,STATION_55,Failure,True,1.0,Instabilité processus marquage
-CASE_0055,Stickers fuselage droit,Stickers fuselage droit,2025-11-30 08:04:26.830987,2025-11-30 09:04:26.830987,STATION_56,Failure,True,1.0,Erreur placement stickers
+CASE_0000,Montage train atterissage,Montage train atterissage,2025-11-28 09:31:36.690853,2025-11-28 10:31:36.690853,STATION_01,Failure,True,1.0,Rupture outillage spécifique
+CASE_0001,Assemblage moteur / fuselage / train atterissage,Assemblage moteur / fuselage / train atterissage,2025-11-28 10:31:36.691836,2025-11-28 11:31:36.691836,STATION_02,Failure,True,1.0,Dysfonctionnement machine soudure
+CASE_0002,Assemblage moteur / fuselage / train atterissage,Assemblage moteur / fuselage / train atterissage,2025-11-28 11:31:36.692480,2025-11-28 12:31:36.692480,STATION_03,Failure,True,1.0,Problème température atelier
+CASE_0003,Assemblage visserie fuselage partie basse,Assemblage visserie fuselage partie basse,2025-11-28 12:31:36.693049,2025-11-28 13:31:36.693049,STATION_04,Failure,True,1.0,Défaillance contrôle qualité
+CASE_0004,Assemblage visserie train atterissage,Assemblage visserie train atterissage,2025-11-28 13:31:36.693663,2025-11-28 14:31:36.693663,STATION_05,Failure,True,1.0,Usure équipements serrage
+CASE_0005,Assemblage fuselage centrale,Assemblage fuselage centrale,2025-11-28 14:31:36.694258,2025-11-28 15:31:36.694258,STATION_06,Failure,True,1.0,Incident logiciel robots
+CASE_0006,Assemblage fuselage centrale,Assemblage fuselage centrale,2025-11-28 15:31:36.694789,2025-11-28 16:31:36.694789,STATION_07,Failure,True,1.0,Panne système ventilation
+CASE_0007,Assemblage fuselage centrale,Assemblage fuselage centrale,2025-11-28 16:31:36.695289,2025-11-28 17:31:36.695289,STATION_08,Failure,True,1.0,Défaut synchronisation
+CASE_0008,Assemblage fuselage centrale,Assemblage fuselage centrale,2025-11-28 17:31:36.695744,2025-11-28 18:31:36.695744,STATION_09,Failure,True,1.0,Interruption réseau
+CASE_0009,Assemblage queue avion,Assemblage queue avion,2025-11-28 18:31:36.696203,2025-11-28 19:31:36.696203,STATION_10,Failure,True,1.0,Incident manutention
+CASE_0010,Assemblage queue avion,Assemblage queue avion,2025-11-28 19:31:36.696780,2025-11-28 20:31:36.696780,STATION_11,Failure,True,1.0,Dérive calibration optique
+CASE_0011,Assemblage queue avion,Assemblage queue avion,2025-11-28 20:31:36.697339,2025-11-28 21:31:36.697339,STATION_12,Failure,True,1.0,Usure gabarits
+CASE_0012,Assemblage queue avion,Assemblage queue avion,2025-11-28 21:31:36.697908,2025-11-28 22:31:36.697908,STATION_13,Failure,True,1.0,Contamination zone
+CASE_0013,Assemblage queue avion,Assemblage queue avion,2025-11-28 22:31:36.698418,2025-11-28 23:31:36.698418,STATION_14,Failure,True,1.0,Défaillance refroidissement
+CASE_0014,Assemblage queue avion,Assemblage queue avion,2025-11-28 23:31:36.699031,2025-11-29 00:31:36.699031,STATION_15,Failure,True,1.0,Perte traçabilité
+CASE_0015,Assemblage queue avion,Assemblage queue avion,2025-11-29 00:31:36.699607,2025-11-29 01:31:36.699607,STATION_16,Failure,True,1.0,Dysfonctionnement guidage
+CASE_0016,Assemblage queue avion,Assemblage queue avion,2025-11-29 01:31:36.700117,2025-11-29 02:31:36.700117,STATION_17,Failure,True,1.0,Incident maintenance
+CASE_0017,Assemblage queue avion,Assemblage queue avion,2025-11-29 02:31:36.700968,2025-11-29 03:31:36.700968,STATION_18,Failure,True,1.0,Problème lubrification
+CASE_0018,Assemblage cockpit,Assemblage cockpit,2025-11-29 03:31:36.701574,2025-11-29 04:31:36.701574,STATION_19,Failure,True,1.0,Défaut communication
+CASE_0019,Assemblage aile gauche,Assemblage aile gauche,2025-11-29 04:31:36.702101,2025-11-29 05:31:36.702101,STATION_20,Failure,True,1.0,Déformation supports
+CASE_0020,Assemblage aile gauche,Assemblage aile gauche,2025-11-29 05:31:36.702662,2025-11-29 06:31:36.702662,STATION_21,Failure,True,1.0,Impact variations pression
+CASE_0021,Assemblage aile gauche,Assemblage aile gauche,2025-11-29 06:31:36.703146,2025-11-29 07:31:36.703146,STATION_22,Failure,True,1.0,Défaillance contrôle qualité
+CASE_0022,Assemblage aile gauche,Assemblage aile gauche,2025-11-29 07:31:36.703632,2025-11-29 08:31:36.703632,STATION_23,Failure,True,1.0,Incident ventilation
+CASE_0023,Assemblage aile gauche,Assemblage aile gauche,2025-11-29 08:31:36.704037,2025-11-29 09:31:36.704037,STATION_24,Failure,True,1.0,Dérive calibration
+CASE_0024,Assemblage aile gauche,Assemblage aile gauche,2025-11-29 09:31:36.704376,2025-11-29 10:31:36.704376,STATION_25,Failure,True,1.0,Contamination
+CASE_0025,Assemblage aile gauche,Assemblage aile gauche,2025-11-29 10:31:36.704644,2025-11-29 11:31:36.704644,STATION_26,Failure,True,1.0,Dysfonctionnement transport
+CASE_0026,Assemblage réacteurs,Assemblage réacteurs,2025-11-29 11:31:36.704915,2025-11-29 12:31:36.704915,STATION_27,Failure,True,1.0,Surchauffe critique
+CASE_0027,Fixation réacteur aile gauche,Fixation réacteur aile gauche,2025-11-29 12:31:36.705196,2025-11-29 13:31:36.705196,STATION_28,Failure,True,1.0,Perte référencement
+CASE_0028,Fixation réacteur aile gauche,Fixation réacteur aile gauche,2025-11-29 13:31:36.705559,2025-11-29 14:31:36.705559,STATION_29,Failure,True,1.0,Usure systèmes serrage
+CASE_0029,Fixation réacteur aile gauche,Fixation réacteur aile gauche,2025-11-29 14:31:36.705923,2025-11-29 15:31:36.705923,STATION_30,Failure,True,1.0,Incident électrique
+CASE_0030,Assemblage train atterissage gauche,Assemblage train atterissage gauche,2025-11-29 15:31:36.706423,2025-11-29 16:31:36.706423,STATION_31,Failure,True,1.0,Défaillance majeure systèmes
+CASE_0031,Assemblage train atterissage gauche,Assemblage train atterissage gauche,2025-11-29 16:31:36.706897,2025-11-29 17:31:36.706897,STATION_32,Failure,True,1.0,Problème communication inter-systèmes
+CASE_0032,Assemblage train atterissage gauche,Assemblage train atterissage gauche,2025-11-29 17:31:36.707355,2025-11-29 18:31:36.707355,STATION_33,Failure,True,1.0,Dysfonctionnement guidage automatisé
+CASE_0033,Assemblage train atterissage gauche,Assemblage train atterissage gauche,2025-11-29 18:31:36.707804,2025-11-29 19:31:36.707804,STATION_34,Failure,True,1.0,Contamination zone travail sensible
+CASE_0034,Fixation aile gauche avion / train atterissage,Fixation aile gauche avion / train atterissage,2025-11-29 19:31:36.708195,2025-11-29 20:31:36.708195,STATION_35,Failure,True,1.0,Défaillance critique système contrôle
+CASE_0035,Assemblage aile droite,Assemblage aile droite,2025-11-29 20:31:36.708650,2025-11-29 21:31:36.708650,STATION_36,Failure,True,1.0,Usure prématurée outillages précision
+CASE_0036,Assemblage aile droite,Assemblage aile droite,2025-11-29 21:31:36.709088,2025-11-29 22:31:36.709088,STATION_37,Failure,True,1.0,Impact variations thermiques
+CASE_0037,Assemblage aile droite,Assemblage aile droite,2025-11-29 22:31:36.709517,2025-11-29 23:31:36.709517,STATION_38,Failure,True,1.0,Désynchronisation postes travail
+CASE_0038,Assemblage aile droite,Assemblage aile droite,2025-11-29 23:31:36.709937,2025-11-30 00:31:36.709937,STATION_39,Failure,True,1.0,Incident ventilation affectant qualité
+CASE_0039,Assemblage aile droite,Assemblage aile droite,2025-11-30 00:31:36.710211,2025-11-30 01:31:36.710211,STATION_40,Failure,True,1.0,Dérive calibration instruments
+CASE_0040,Assemblage aile droite,Assemblage aile droite,2025-11-30 01:31:36.710568,2025-11-30 02:31:36.710568,STATION_41,Failure,True,1.0,Contamination zones critiques
+CASE_0041,Assemblage aile droite,Assemblage aile droite,2025-11-30 02:31:36.710962,2025-11-30 03:31:36.710962,STATION_42,Failure,True,1.0,Dysfonctionnement transport pièces
+CASE_0042,Fixation réacteur aile droite,Fixation réacteur aile droite,2025-11-30 03:31:36.711324,2025-11-30 04:31:36.711324,STATION_43,Failure,True,1.0,Défaillance protocoles sécurité industrielle
+CASE_0043,Fixation réacteur aile droite,Fixation réacteur aile droite,2025-11-30 04:31:36.711796,2025-11-30 05:31:36.711796,STATION_44,Failure,True,1.0,Problème calibration systèmes
+CASE_0044,Fixation réacteur aile droite,Fixation réacteur aile droite,2025-11-30 05:31:36.712250,2025-11-30 06:31:36.712250,STATION_45,Failure,True,1.0,Impact vibrations sur précision
+CASE_0045,Assemblage train atterissage droit,Assemblage train atterissage droit,2025-11-30 06:31:36.712669,2025-11-30 07:31:36.712669,STATION_46,Failure,True,1.0,Perte traçabilité composants
+CASE_0046,Assemblage train atterissage droit,Assemblage train atterissage droit,2025-11-30 07:31:36.712992,2025-11-30 08:31:36.712992,STATION_47,Failure,True,1.0,Dysfonctionnement systèmes guidage
+CASE_0047,Assemblage train atterissage droit,Assemblage train atterissage droit,2025-11-30 08:31:36.713308,2025-11-30 09:31:36.713308,STATION_48,Failure,True,1.0,Contamination environnement production
+CASE_0048,Fixation aile droit avion / train atterissage,Fixation aile droit avion / train atterissage,2025-11-30 09:31:36.713588,2025-11-30 10:31:36.713588,STATION_49,Failure,True,1.0,Défaillance critique contrôle qualité
+CASE_0049,Fixation bout ailes,Fixation bout ailes,2025-11-30 10:31:36.714066,2025-11-30 11:31:36.714066,STATION_50,Failure,True,1.0,Dérive paramètres production
+CASE_0050,Passage faisceaux électrique ailes,Passage faisceaux électrique ailes,2025-11-30 11:31:36.714559,2025-11-30 12:31:36.714559,STATION_51,Failure,True,1.0,Problème connectique électrique
+CASE_0051,Fixation lumières bout ailes,Fixation lumières bout ailes,2025-11-30 12:31:36.715047,2025-11-30 13:31:36.715047,STATION_52,Failure,True,1.0,Défaut adhérence supports
+CASE_0052,Stickers cockpit,Stickers cockpit,2025-11-30 13:31:36.715521,2025-11-30 14:31:36.715521,STATION_53,Failure,True,1.0,Problème impression marquages
+CASE_0053,Stickers réacteur,Stickers réacteur,2025-11-30 14:31:36.715986,2025-11-30 15:31:36.715986,STATION_54,Failure,True,1.0,Défaut positionnement étiquettes
+CASE_0054,Stickers fuselage gauche,Stickers fuselage gauche,2025-11-30 15:31:36.716478,2025-11-30 16:31:36.716478,STATION_55,Failure,True,1.0,Instabilité processus marquage
+CASE_0055,Stickers fuselage droit,Stickers fuselage droit,2025-11-30 16:31:36.717196,2025-11-30 17:31:36.717196,STATION_56,Failure,True,1.0,Erreur placement stickers

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, HostListener, ElementRef, ViewChildren, QueryList } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
@@ -34,13 +34,34 @@ export class PythonOverviewComponent implements OnInit, OnDestroy {
   error: string | null = null;
 
   // Chart options
-  view: [number, number] = [600, 300];
   colorScheme: any = {
-    domain: ['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b']
+    domain: ['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444']
   };
   showXAxis = true;
   showYAxis = true;
   showLegend = false;
+  animations = true;
+
+  @ViewChildren('chartWrapper') chartWrappers!: QueryList<ElementRef>;  // Reference to chart divs
+  view1: [number, number] = [0, 0];  // For first chart (Cycle vs Waiting)
+  view2: [number, number] = [0, 0];  // For second chart (Rework Rate)
+
+  // Calculate sizes based on actual container dimensions
+  updateChartSizes() {
+    if (this.chartWrappers) {
+      const wrappers = this.chartWrappers.toArray();
+      if (wrappers.length >= 2) {
+        this.view1 = [wrappers[0].nativeElement.offsetWidth, wrappers[0].nativeElement.offsetHeight];
+        this.view2 = [wrappers[1].nativeElement.offsetWidth, wrappers[1].nativeElement.offsetHeight];
+        this.cdr.detectChanges();
+      }
+    }
+  }
+  
+  @HostListener('window:resize')
+  onResize() {
+    this.updateChartSizes();
+  }
 
   constructor(
     private backendApi: BackendApiService,
@@ -49,6 +70,7 @@ export class PythonOverviewComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadAllData();
+    this.updateChartSizes();
   }
 
   ngOnDestroy(): void {
@@ -82,6 +104,7 @@ export class PythonOverviewComponent implements OnInit, OnDestroy {
           this.reworkChartData = data.reworkChart;
           this.loading = false;
           this.cdr.detectChanges();
+          this.updateChartSizes();
         },
         error: (err) => {
           console.error('❌ Error loading data:', err);

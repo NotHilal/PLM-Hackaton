@@ -77,47 +77,31 @@
 
     <!-- Charts Grid -->
     <div class="grid grid-cols-2 mb-xl">
-      <!-- WIP by Operation Chart -->
-      <div class="chart-container">
-        <div class="chart-title">Work in Progress par Opération</div>
-        <ngx-charts-bar-vertical
-          [view]="view"
-          [results]="wipChartData"
-          [xAxis]="showXAxis"
-          [yAxis]="showYAxis"
-          [legend]="false"
-          [showXAxisLabel]="true"
-          [showYAxisLabel]="true"
-          [xAxisLabel]="'Opération'"
-          [yAxisLabel]="'WIP Count'"
-          [scheme]="colorScheme"
-          [gradient]="true"
-          [roundEdges]="true">
-        </ngx-charts-bar-vertical>
-      </div>
-
       <!-- Cycle vs Waiting Time Chart -->
       <div class="chart-container">
         <div class="chart-title">Temps de Cycle vs Temps d'Attente</div>
+        <div #chartWrapper class="chart-wrapper">
         <ngx-charts-bar-vertical-stacked
-          [view]="view"
+          [view]="view1"
           [results]="cycleWaitingChartData"
           [xAxis]="showXAxis"
           [yAxis]="showYAxis"
-          [legend]="true"
           [showXAxisLabel]="true"
           [showYAxisLabel]="true"
           [xAxisLabel]="'Opération'"
           [yAxisLabel]="'Temps (minutes)'"
-          [scheme]="colorScheme">
+          [scheme]="colorScheme"
+          [animations]="false">
         </ngx-charts-bar-vertical-stacked>
+        </div>
       </div>
 
       <!-- Rework Rate Chart -->
       <div class="chart-container">
         <div class="chart-title">Taux de Reprise par Opération</div>
+        <div #chartWrapper class="chart-wrapper">
         <ngx-charts-bar-vertical
-          [view]="view"
+          [view]="view2"
           [results]="reworkChartData"
           [xAxis]="showXAxis"
           [yAxis]="showYAxis"
@@ -128,8 +112,10 @@
           [yAxisLabel]="'Taux (%)'"
           [scheme]="colorScheme"
           [gradient]="true"
-          [roundEdges]="true">
+          [roundEdges]="true"
+          [animations]="false">
         </ngx-charts-bar-vertical>
+        </div>
       </div>
     </div>
 
