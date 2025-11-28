@@ -33,6 +33,11 @@ export class PythonOverviewComponent implements OnInit, OnDestroy {
   loading = true;
   error: string | null = null;
 
+  // Process graph data
+  processGraphData: any = null;
+  processSvgBase64: string | null = null;
+  showSvgDiagram = false;
+
   // Chart options
   view: [number, number] = [1200, 400];
   colorScheme: any = {
@@ -69,7 +74,8 @@ export class PythonOverviewComponent implements OnInit, OnDestroy {
       operations: this.backendApi.getOperations(),
       wipChart: this.backendApi.getWIPChartData(),
       cycleWaitingChart: this.backendApi.getCycleVsWaitingChartData(),
-      reworkChart: this.backendApi.getReworkRateChartData()
+      reworkChart: this.backendApi.getReworkRateChartData(),
+      processGraph: this.backendApi.getProcessGraph()
     })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -80,6 +86,8 @@ export class PythonOverviewComponent implements OnInit, OnDestroy {
           this.wipChartData = data.wipChart;
           this.cycleWaitingChartData = data.cycleWaitingChart;
           this.reworkChartData = data.reworkChart;
+          this.processGraphData = data.processGraph;
+          console.log('📊 Process graph data:', this.processGraphData);
           this.loading = false;
           this.cdr.detectChanges();
         },
@@ -97,6 +105,68 @@ export class PythonOverviewComponent implements OnInit, OnDestroy {
    */
   refresh(): void {
     this.loadAllData();
+  }
+
+  /**
+   * Check if operation is a bottleneck
+   */
+  isBottleneck(operation: OperationSummary): boolean {
+    if (!operation.avgWaitingTime || !operation.avgCycleTime) {
+      return false;
+    }
+    return operation.avgWaitingTime > operation.avgCycleTime;
+  }
+
+  /**
+   * Get operation icon based on index
+   */
+  getOperationIcon(index: number): string {
+    const icons = ['🔪', '🔩', '🎨', '🔧', '✅'];
+    return icons[index] || '⚙️';
+  }
+
+  /**
+   * Load and display PM4PY-generated SVG diagram
+   */
+  loadSvgDiagram(): void {
+    this.backendApi.getProcessBPMNSvg()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.processSvgBase64 = data.svg;
+          this.showSvgDiagram = true;
+          console.log('✅ BPMN SVG loaded');
+        },
+        error: (err) => {
+          console.error('❌ Error loading BPMN SVG:', err);
+          alert('Impossible de générer le diagramme BPMN. Assurez-vous que pm4py et graphviz sont installés sur le backend.');
+        }
+      });
+  }
+
+  /**
+   * Toggle between custom HTML diagram and PM4PY SVG
+   */
+  toggleDiagramType(): void {
+    if (this.showSvgDiagram) {
+      this.showSvgDiagram = false;
+    } else {
+      if (!this.processSvgBase64) {
+        this.loadSvgDiagram();
+      } else {
+        this.showSvgDiagram = true;
+      }
+    }
+  }
+
+  /**
+   * Check if node/operation is a bottleneck from graph data
+   */
+  isBottleneckFromGraph(operationName: string): boolean {
+    if (!this.processGraphData || !this.processGraphData.bottlenecks) {
+      return false;
+    }
+    return this.processGraphData.bottlenecks[operationName] !== undefined;
   }
 
   /**

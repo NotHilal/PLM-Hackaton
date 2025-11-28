@@ -67,6 +67,79 @@
       </div>
     </div>
 
+    <!-- Process Flow Diagram (BPMN-style) -->
+    <div class="card mb-xl process-flow-card">
+      <div class="card-header">
+        <div style="flex: 1;">
+          <span>🔄 Flux de Processus</span>
+          <span class="text-muted" style="font-size: 0.875rem; font-weight: normal;">
+            {{ showSvgDiagram ? 'Diagramme généré par PM4PY (Process Mining)' : 'Visualisation des opérations et goulots' }}
+          </span>
+        </div>
+        <button class="btn btn-secondary" (click)="toggleDiagramType()" style="margin-left: auto;">
+          {{ showSvgDiagram ? '📊 Vue Simple' : '🎯 Vue PM4PY' }}
+        </button>
+      </div>
+      <div class="card-body">
+        <!-- PM4PY SVG Diagram -->
+        <div *ngIf="showSvgDiagram && processSvgBase64" class="svg-container">
+          <img [src]="'data:image/svg+xml;base64,' + processSvgBase64" alt="BPMN Process Diagram" style="max-width: 100%; height: auto; background: white; border-radius: 8px; padding: 20px;">
+          <div class="svg-footer">
+            <span class="badge badge-success">Généré par PM4PY - Vrai Process Mining</span>
+            <span class="text-muted" style="font-size: 0.875rem; margin-left: 1rem;">
+              Découverte automatique du processus depuis l'event log
+            </span>
+          </div>
+        </div>
+
+        <!-- Custom HTML Diagram -->
+        <div class="process-flow-container" *ngIf="!showSvgDiagram">
+          <div class="process-flow">
+            <!-- Operation nodes -->
+            <div *ngFor="let op of operations; let i = index" class="operation-node-container">
+              <div class="operation-node"
+                   [class.bottleneck]="isBottleneck(op)"
+                   [class.normal]="!isBottleneck(op)">
+                <div class="operation-icon">{{ getOperationIcon(i) }}</div>
+                <div class="operation-name">{{ op.operation }}</div>
+                <div class="operation-metrics">
+                  <div class="metric-row">
+                    <span class="metric-label">WIP:</span>
+                    <span class="metric-value">{{ op.currentWIP }}</span>
+                  </div>
+                  <div class="metric-row">
+                    <span class="metric-label">Attente:</span>
+                    <span class="metric-value">{{ op.avgWaitingTime?.toFixed(1) }}h</span>
+                  </div>
+                </div>
+                <div class="bottleneck-badge" *ngIf="isBottleneck(op)">
+                  ⚠️ Goulot
+                </div>
+              </div>
+
+              <!-- Arrow to next operation -->
+              <div class="flow-arrow" *ngIf="i < operations.length - 1">
+                <div class="arrow-line"></div>
+                <div class="arrow-head">→</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Legend -->
+          <div class="flow-legend">
+            <div class="legend-item">
+              <div class="legend-box normal-box"></div>
+              <span>Opération normale</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-box bottleneck-box"></div>
+              <span>Goulot d'étranglement</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Bottleneck Info Bar -->
     <div class="card mb-xl" *ngIf="processMiningKPIs.bottleneckOperation">
       <div class="flex items-center justify-between">

@@ -19,6 +19,7 @@ import shutil
 from dotenv import load_dotenv
 from kpi_calculator import KPICalculator
 from event_log_generator import EventLogGenerator
+from bpmn_generator import BPMNGenerator
 from groq import Groq
 
 # Load environment variables from .env file
@@ -872,6 +873,72 @@ def chat_with_ai():
 
     except Exception as e:
         print(f"❌ Error in chat endpoint: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+# ==================== BPMN PROCESS DIAGRAM ENDPOINTS ====================
+
+@app.route('/api/v2/process-graph', methods=['GET'])
+def get_process_graph():
+    """
+    Get process flow graph data using pm4py
+    Returns structured graph with nodes and edges
+    """
+    try:
+        # Generate event log
+        event_gen = EventLogGenerator(mes_data)
+        event_log = event_gen.generate_event_log()
+
+        # Create BPMN generator
+        bpmn_gen = BPMNGenerator(event_log)
+
+        # Generate process graph
+        graph_data = bpmn_gen.generate_process_graph()
+
+        # Get bottlenecks to annotate graph
+        if kpi_calc:
+            bottlenecks = kpi_calc.calculate_bottlenecks()
+            bottleneck_map = bpmn_gen.get_bottleneck_info(bottlenecks)
+            graph_data['bottlenecks'] = bottleneck_map
+
+        return jsonify(graph_data), 200
+
+    except Exception as e:
+        print(f"❌ Error generating process graph: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v2/process-bpmn-svg', methods=['GET'])
+def get_process_bpmn_svg():
+    """
+    Get BPMN diagram as SVG (base64 encoded)
+    Uses pm4py to generate professional BPMN visualization
+    """
+    try:
+        # Generate event log
+        event_gen = EventLogGenerator(mes_data)
+        event_log = event_gen.generate_event_log()
+
+        # Create BPMN generator
+        bpmn_gen = BPMNGenerator(event_log)
+
+        # Generate SVG
+        svg_base64 = bpmn_gen.generate_bpmn_svg()
+
+        if not svg_base64:
+            return jsonify({'error': 'Failed to generate BPMN SVG. Make sure pm4py and graphviz are installed.'}), 500
+
+        return jsonify({
+            'svg': svg_base64,
+            'format': 'base64'
+        }), 200
+
+    except Exception as e:
+        print(f"❌ Error generating BPMN SVG: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 

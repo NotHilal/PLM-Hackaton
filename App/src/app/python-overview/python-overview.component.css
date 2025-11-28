@@ -362,3 +362,255 @@
     font-size: 1.5rem;
   }
 }
+
+/* ==================== PROCESS FLOW DIAGRAM STYLING ==================== */
+
+.process-flow-card {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%);
+  border-left: 4px solid var(--accent-purple);
+}
+
+.process-flow-container {
+  padding: var(--spacing-lg);
+}
+
+.process-flow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+  overflow-x: auto;
+  padding: var(--spacing-lg) 0;
+}
+
+.operation-node-container {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.operation-node {
+  position: relative;
+  background: var(--bg-secondary);
+  border: 3px solid;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  min-width: 180px;
+  max-width: 200px;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-md);
+}
+
+.operation-node:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.operation-node.normal {
+  border-color: var(--accent-cyan);
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+}
+
+.operation-node.bottleneck {
+  border-color: #ef4444;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(249, 115, 22, 0.15) 100%);
+  animation: pulse-bottleneck 2s ease-in-out infinite;
+}
+
+@keyframes pulse-bottleneck {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+}
+
+.operation-icon {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-sm);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.operation-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.operation-metrics {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+  font-size: 0.875rem;
+}
+
+.metric-label {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.metric-value {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.bottleneck-badge {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+  animation: bounce-badge 1s ease-in-out infinite;
+}
+
+@keyframes bounce-badge {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.flow-arrow {
+  display: flex;
+  align-items: center;
+  margin: 0 var(--spacing-md);
+  color: var(--accent-cyan);
+  flex-shrink: 0;
+}
+
+.arrow-line {
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+  border-radius: 2px;
+}
+
+.arrow-head {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-purple);
+  margin-left: -4px;
+}
+
+.flow-legend {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.legend-box {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  border: 3px solid;
+  flex-shrink: 0;
+}
+
+.legend-box.normal-box {
+  border-color: var(--accent-cyan);
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+}
+
+.legend-box.bottleneck-box {
+  border-color: #ef4444;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, rgba(249, 115, 22, 0.3) 100%);
+}
+
+/* Responsive Process Flow */
+@media (max-width: 1200px) {
+  .process-flow {
+    justify-content: flex-start;
+  }
+
+  .operation-node {
+    min-width: 150px;
+    max-width: 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  .process-flow {
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .operation-node-container {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .operation-node {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .flow-arrow {
+    transform: rotate(90deg);
+    margin: var(--spacing-md) 0;
+  }
+
+  .flow-legend {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ==================== PM4PY SVG DIAGRAM STYLING ==================== */
+
+.svg-container {
+  text-align: center;
+  padding: var(--spacing-lg);
+}
+
+.svg-container img {
+  box-shadow: var(--shadow-lg);
+}
+
+.svg-footer {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}

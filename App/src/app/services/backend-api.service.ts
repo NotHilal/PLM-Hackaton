@@ -325,4 +325,22 @@ export class BackendApiService {
       insights
     });
   }
+
+  /**
+   * Get process flow graph data (BPMN-style)
+   */
+  getProcessGraph(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/v2/process-graph`).pipe(
+      shareReplay(1)
+    );
+  }
+
+  /**
+   * Get BPMN diagram as SVG (base64 encoded)
+   */
+  getProcessBPMNSvg(): Observable<{ svg: string; format: string }> {
+    return this.http.get<{ svg: string; format: string }>(`${this.baseUrl}/v2/process-bpmn-svg`).pipe(
+      shareReplay(1)
+    );
+  }
 }

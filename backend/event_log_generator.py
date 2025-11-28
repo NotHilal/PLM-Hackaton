@@ -56,7 +56,14 @@ class EventLogGenerator:
                     timestamp_end = timestamp_start + timedelta(hours=1)
 
                 # Determine result and rework flag
-                has_issue = pd.notna(aleas) if aleas is not None else False
+                # Consider it a failure only if there's a real issue (not 0, not empty, not "OK", etc.)
+                has_issue = False
+                if aleas is not None and pd.notna(aleas):
+                    # Convert to string and check if it's meaningful
+                    aleas_str = str(aleas).strip().lower()
+                    if aleas_str and aleas_str not in ['0', '0.0', 'nan', 'none', '', 'ok', 'ras', 'aucun']:
+                        has_issue = True
+
                 result = 'Failure' if has_issue else 'Success'
                 rework_flag = has_issue
 
