@@ -1,0 +1,165 @@
+<div class="file-uploader-container">
+  <!-- Header -->
+  <div class="uploader-header">
+    <h2>📤 Upload Manufacturing Data</h2>
+    <p class="subtitle">Upload Excel files to update KPIs and insights</p>
+  </div>
+
+  <!-- Success/Error Messages -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Upload Cards -->
+  <div class="upload-grid">
+    <!-- MES Upload Card -->
+    <div class="upload-card">
+      <div class="card-header">
+        <span class="card-icon">🏭</span>
+        <h3>MES Data</h3>
+      </div>
+      <div class="card-body">
+        <p class="card-description">
+          Manufacturing Execution System data (operations, times, quality)
+        </p>
+
+        <div *ngIf="currentFiles['mes']?.exists" class="current-file-info">
+          <div class="info-row">
+            <span class="label">Current file:</span>
+            <span class="value">{{ currentFiles['mes'].filename }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Size:</span>
+            <span class="value">{{ formatFileSize(currentFiles['mes'].size) }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Last updated:</span>
+            <span class="value">{{ formatDate(currentFiles['mes'].last_modified) }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="!currentFiles['mes']?.exists" class="no-file-warning">
+          ⚠️ No MES file currently loaded
+        </div>
+
+        <label class="upload-btn" [class.loading]="uploadingType === 'mes'">
+          <input
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            (change)="onFileSelected($event, 'mes')"
+            [disabled]="loading">
+          <span *ngIf="uploadingType !== 'mes'">📁 Choose MES File</span>
+          <span *ngIf="uploadingType === 'mes'">⏳ Uploading...</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- ERP Upload Card -->
+    <div class="upload-card">
+      <div class="card-header">
+        <span class="card-icon">💼</span>
+        <h3>ERP Data</h3>
+      </div>
+      <div class="card-body">
+        <p class="card-description">
+          Enterprise Resource Planning data (teams, employees, schedules)
+        </p>
+
+        <div *ngIf="currentFiles['erp']?.exists" class="current-file-info">
+          <div class="info-row">
+            <span class="label">Current file:</span>
+            <span class="value">{{ currentFiles['erp'].filename }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Size:</span>
+            <span class="value">{{ formatFileSize(currentFiles['erp'].size) }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Last updated:</span>
+            <span class="value">{{ formatDate(currentFiles['erp'].last_modified) }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="!currentFiles['erp']?.exists" class="no-file-warning">
+          ⚠️ No ERP file currently loaded
+        </div>
+
+        <label class="upload-btn" [class.loading]="uploadingType === 'erp'">
+          <input
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            (change)="onFileSelected($event, 'erp')"
+            [disabled]="loading">
+          <span *ngIf="uploadingType !== 'erp'">📁 Choose ERP File</span>
+          <span *ngIf="uploadingType === 'erp'">⏳ Uploading...</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- PLM Upload Card -->
+    <div class="upload-card">
+      <div class="card-header">
+        <span class="card-icon">📐</span>
+        <h3>PLM Data</h3>
+      </div>
+      <div class="card-body">
+        <p class="card-description">
+          Product Lifecycle Management data (components, BOM, revisions)
+        </p>
+
+        <div *ngIf="currentFiles['plm']?.exists" class="current-file-info">
+          <div class="info-row">
+            <span class="label">Current file:</span>
+            <span class="value">{{ currentFiles['plm'].filename }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Size:</span>
+            <span class="value">{{ formatFileSize(currentFiles['plm'].size) }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Last updated:</span>
+            <span class="value">{{ formatDate(currentFiles['plm'].last_modified) }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="!currentFiles['plm']?.exists" class="no-file-warning">
+          ⚠️ No PLM file currently loaded
+        </div>
+
+        <label class="upload-btn" [class.loading]="uploadingType === 'plm'">
+          <input
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            (change)="onFileSelected($event, 'plm')"
+            [disabled]="loading">
+          <span *ngIf="uploadingType !== 'plm'">📁 Choose PLM File</span>
+          <span *ngIf="uploadingType === 'plm'">⏳ Uploading...</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instructions -->
+  <div class="instructions-section">
+    <h3>📖 Instructions</h3>
+    <ol>
+      <li>Ensure your Excel files have the same column structure as the original files</li>
+      <li>Click "Choose File" to select a file from your computer</li>
+      <li>The file will be automatically uploaded and processed</li>
+      <li>All KPIs and insights will be recalculated based on the new data</li>
+      <li>Navigate to other pages (Overview, Insights, Event Log) to see updated results</li>
+    </ol>
+
+    <div class="file-format-info">
+      <h4>Required File Formats:</h4>
+      <ul>
+        <li><strong>MES:</strong> Columns: Poste, Nom, Temps Réel, Temps Prévu, etc.</li>
+        <li><strong>ERP:</strong> Columns: Employee ID, Team, Schedule, etc.</li>
+        <li><strong>PLM:</strong> Columns: Component ID, BOM, Revision, etc.</li>
+      </ul>
+    </div>
+  </div>
+</div>

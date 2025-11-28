@@ -9,6 +9,7 @@ import { TestBackendComponent } from './test-backend/test-backend.component';
 import { PythonOverviewComponent } from './python-overview/python-overview.component';
 import { PythonInsightsComponent } from './python-insights/python-insights.component';
 import { EventLogComponent } from './event-log/event-log.component';
+import { FileVersionsModalComponent } from './file-versions-modal/file-versions-modal.component';
 
 type RouteType = 'overview' | 'analytics' | 'insights' | 'data' | 'test' | 'python-overview' | 'python-insights' | 'event-log';
 
@@ -25,7 +26,8 @@ type RouteType = 'overview' | 'analytics' | 'insights' | 'data' | 'test' | 'pyth
     TestBackendComponent,
     PythonOverviewComponent,
     PythonInsightsComponent,
-    EventLogComponent
+    EventLogComponent,
+    FileVersionsModalComponent
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
@@ -33,6 +35,7 @@ type RouteType = 'overview' | 'analytics' | 'insights' | 'data' | 'test' | 'pyth
 export class App {
   activeRoute: RouteType = 'python-overview'; // Start with Python version
   sidenavOpen = true;
+  fileVersionsModalOpen = false;
 
   /**
    * Navigate to a different route
@@ -51,5 +54,21 @@ export class App {
    */
   toggleSidenav(): void {
     this.sidenavOpen = !this.sidenavOpen;
+  }
+
+  /**
+   * Open file versions modal
+   */
+  openFileVersionsModal(): void {
+    console.log('📁 Opening file versions modal...');
+    this.fileVersionsModalOpen = true;
+    console.log('📁 Modal state:', this.fileVersionsModalOpen);
+  }
+
+  /**
+   * Close file versions modal
+   */
+  closeFileVersionsModal(): void {
+    this.fileVersionsModalOpen = false;
   }
 }

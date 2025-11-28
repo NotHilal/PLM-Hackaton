@@ -1,14 +1,30 @@
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import os
+import json
+import shutil
 from kpi_calculator import KPICalculator
 from event_log_generator import EventLogGenerator
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for Angular frontend
+
+# File upload configuration
+DATA_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'data')
+UPLOAD_FOLDER = os.path.join(DATA_FOLDER, 'uploads')  # Store versions here
+ACTIVE_FOLDER = DATA_FOLDER  # Active files stored in data/
+FILE_REGISTRY = os.path.join(DATA_FOLDER, 'file_registry.json')  # Track all uploads
+ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+
+# Create uploads folder if it doesn't exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Global KPI calculator instance
 kpi_calc = None
@@ -90,6 +106,25 @@ def get_erp_kpis():
         return jsonify(kpi_calc.calculate_erp_kpis()), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v2/data/erp', methods=['GET'])
+def get_erp_data():
+    """Get raw ERP data (employee records)"""
+    try:
+        if erp_data is None or erp_data.empty:
+            return jsonify({'employees': []}), 200
+
+        # Convert DataFrame to list of dictionaries
+        employees = erp_data.to_dict('records')
+
+        return jsonify({
+            'employees': employees,
+            'total': len(employees)
+        }), 200
+    except Exception as e:
+        print(f"Error getting ERP data: {e}")
+        return jsonify({'error': str(e), 'employees': []}), 500
 
 
 @app.route('/api/v2/kpis/mes', methods=['GET'])
@@ -243,6 +278,314 @@ def list_endpoints():
             })
 
     return jsonify(endpoints), 200
+
+
+# ==================== FILE UPLOAD ENDPOINTS ====================
+
+def allowed_file(filename):
+    """Check if file has allowed extension"""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def load_file_registry():
+    """Load file registry from JSON"""
+    if os.path.exists(FILE_REGISTRY):
+        try:
+            with open(FILE_REGISTRY, 'r') as f:
+                return json.load(f)
+        except:
+            return {'mes': [], 'erp': [], 'plm': []}
+    return {'mes': [], 'erp': [], 'plm': []}
+
+
+def save_file_registry(registry):
+    """Save file registry to JSON"""
+    with open(FILE_REGISTRY, 'w') as f:
+        json.dump(registry, f, indent=2)
+
+
+def add_file_to_registry(file_type, file_info):
+    """Add a file upload to the registry"""
+    registry = load_file_registry()
+    if file_type not in registry:
+        registry[file_type] = []
+    registry[file_type].append(file_info)
+    save_file_registry(registry)
+
+
+def set_active_file(file_type, file_id):
+    """Mark a specific file as active"""
+    registry = load_file_registry()
+    if file_type in registry:
+        for file_info in registry[file_type]:
+            file_info['active'] = (file_info['id'] == file_id)
+    save_file_registry(registry)
+    return registry
+
+
+@app.route('/api/v2/upload/test', methods=['GET'])
+def test_upload():
+    """Test endpoint to verify upload route is accessible"""
+    return jsonify({'status': 'ok', 'message': 'Upload endpoint is accessible'}), 200
+
+
+@app.route('/api/v2/upload', methods=['POST'])
+def upload_file():
+    """
+    Upload MES/ERP/PLM Excel files - saves with timestamp, keeps history
+    Expects: multipart/form-data with 'file' field and 'type' field (mes, erp, or plm)
+    """
+    global kpi_calc, mes_data, erp_data, plm_data
+
+    try:
+        print(f"📤 Upload request received")
+
+        # Check if file is present
+        if 'file' not in request.files:
+            print("❌ No file in request")
+            return jsonify({'error': 'No file provided'}), 400
+
+        file = request.files['file']
+        file_type = request.form.get('type', '').lower()  # mes, erp, or plm
+
+        print(f"📝 File: {file.filename}, Type: {file_type}")
+
+        if file.filename == '':
+            print("❌ Empty filename")
+            return jsonify({'error': 'No file selected'}), 400
+
+        if not allowed_file(file.filename):
+            print("❌ Invalid file type")
+            return jsonify({'error': 'Invalid file type. Only .xlsx, .xls, .csv allowed'}), 400
+
+        if file_type not in ['mes', 'erp', 'plm']:
+            print("❌ Invalid data type")
+            return jsonify({'error': 'Invalid file type. Must be "mes", "erp", or "plm"'}), 400
+
+        # Generate unique filename with timestamp
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        original_filename = secure_filename(file.filename)
+        file_ext = original_filename.rsplit('.', 1)[1] if '.' in original_filename else 'xlsx'
+
+        # Save to uploads folder with timestamp
+        versioned_filename = f"{file_type}_{timestamp}.{file_ext}"
+        versioned_filepath = os.path.join(UPLOAD_FOLDER, versioned_filename)
+
+        print(f"💾 Saving versioned file to: {versioned_filepath}")
+        file.save(versioned_filepath)
+
+        # Also copy to active folder (for backward compatibility)
+        file_mapping = {
+            'mes': 'MES_Extraction.xlsx',
+            'erp': 'ERP_Equipes Airplus.xlsx',
+            'plm': 'PLM_DataSet.xlsx'
+        }
+        active_filename = file_mapping[file_type]
+        active_filepath = os.path.join(ACTIVE_FOLDER, active_filename)
+
+        print(f"💾 Copying to active file: {active_filepath}")
+        shutil.copy2(versioned_filepath, active_filepath)
+
+        # Get file size
+        file_size = os.path.getsize(versioned_filepath)
+
+        # Add to registry
+        file_id = f"{file_type}_{timestamp}"
+        file_info = {
+            'id': file_id,
+            'original_name': original_filename,
+            'stored_name': versioned_filename,
+            'file_type': file_type,
+            'uploaded_at': datetime.now().isoformat(),
+            'size': file_size,
+            'active': True  # Mark as active
+        }
+
+        # Mark all others as inactive, this one as active
+        registry = load_file_registry()
+        if file_type not in registry:
+            registry[file_type] = []
+
+        # Mark ALL existing files as inactive
+        for f in registry[file_type]:
+            f['active'] = False
+
+        # Add new file as active
+        registry[file_type].append(file_info)
+        save_file_registry(registry)
+
+        print(f"✅ File saved successfully (versioned + active)")
+
+        # Reload data
+        print(f"🔄 Reloading data...")
+        erp_data_new, mes_data_new, plm_data_new = load_data_files()
+
+        # Update global variables
+        erp_data = erp_data_new
+        mes_data = mes_data_new
+        plm_data = plm_data_new
+
+        # Reinitialize KPI calculator with new data
+        print(f"🔄 Reinitializing KPI calculator...")
+        kpi_calc = KPICalculator(erp_data=erp_data, mes_data=mes_data, plm_data=plm_data)
+
+        print(f"✅ Upload complete!")
+
+        return jsonify({
+            'success': True,
+            'message': f'{file_type.upper()} data uploaded and saved as version',
+            'filename': versioned_filename,
+            'file_id': file_id,
+            'active': True
+        }), 200
+
+    except Exception as e:
+        print(f"❌ Upload error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v2/files/list', methods=['GET'])
+def list_all_file_versions():
+    """Get list of all uploaded file versions"""
+    try:
+        registry = load_file_registry()
+        return jsonify(registry), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v2/files/active/<file_type>', methods=['POST'])
+def set_active_version(file_type):
+    """Set a specific file version as active"""
+    global kpi_calc, mes_data, erp_data, plm_data
+
+    try:
+        data = request.get_json()
+        file_id = data.get('file_id')
+
+        if not file_id:
+            return jsonify({'error': 'file_id required'}), 400
+
+        if file_type not in ['mes', 'erp', 'plm']:
+            return jsonify({'error': 'Invalid file type'}), 400
+
+        # Update registry
+        registry = set_active_file(file_type, file_id)
+
+        # Find the file in registry
+        active_file = None
+        if file_type in registry:
+            for f in registry[file_type]:
+                if f['id'] == file_id:
+                    active_file = f
+                    break
+
+        if not active_file:
+            return jsonify({'error': 'File not found'}), 404
+
+        # Copy versioned file to active location
+        versioned_filepath = os.path.join(UPLOAD_FOLDER, active_file['stored_name'])
+        file_mapping = {
+            'mes': 'MES_Extraction.xlsx',
+            'erp': 'ERP_Equipes Airplus.xlsx',
+            'plm': 'PLM_DataSet.xlsx'
+        }
+        active_filename = file_mapping[file_type]
+        active_filepath = os.path.join(ACTIVE_FOLDER, active_filename)
+
+        shutil.copy2(versioned_filepath, active_filepath)
+        print(f"✅ Switched active file to: {active_file['stored_name']}")
+
+        # Reload data
+        erp_data_new, mes_data_new, plm_data_new = load_data_files()
+        erp_data = erp_data_new
+        mes_data = mes_data_new
+        plm_data = plm_data_new
+        kpi_calc = KPICalculator(erp_data=erp_data, mes_data=mes_data, plm_data=plm_data)
+
+        return jsonify({
+            'success': True,
+            'message': f'Switched to {active_file["original_name"]}',
+            'file_id': file_id
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v2/files/delete/<file_type>/<file_id>', methods=['DELETE'])
+def delete_file_version(file_type, file_id):
+    """Delete a specific file version"""
+    try:
+        registry = load_file_registry()
+
+        if file_type not in registry:
+            return jsonify({'error': 'File type not found'}), 404
+
+        # Find and remove file from registry
+        file_to_delete = None
+        for i, f in enumerate(registry[file_type]):
+            if f['id'] == file_id:
+                if f.get('active'):
+                    return jsonify({'error': 'Cannot delete active file'}), 400
+                file_to_delete = registry[file_type].pop(i)
+                break
+
+        if not file_to_delete:
+            return jsonify({'error': 'File not found'}), 404
+
+        # Delete physical file
+        versioned_filepath = os.path.join(UPLOAD_FOLDER, file_to_delete['stored_name'])
+        if os.path.exists(versioned_filepath):
+            os.remove(versioned_filepath)
+
+        # Save updated registry
+        save_file_registry(registry)
+
+        return jsonify({
+            'success': True,
+            'message': f'Deleted {file_to_delete["original_name"]}'
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v2/current-files', methods=['GET'])
+def get_current_files():
+    """Get information about currently loaded data files"""
+    try:
+        data_path = ACTIVE_FOLDER
+
+        files_info = {}
+        file_mapping = {
+            'MES_Extraction.xlsx': 'mes',
+            'ERP_Equipes Airplus.xlsx': 'erp',
+            'PLM_DataSet.xlsx': 'plm'
+        }
+
+        for filename, file_type in file_mapping.items():
+            filepath = os.path.join(data_path, filename)
+            if os.path.exists(filepath):
+                stat = os.stat(filepath)
+                files_info[file_type] = {
+                    'filename': filename,
+                    'size': stat.st_size,
+                    'last_modified': datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                    'exists': True
+                }
+            else:
+                files_info[file_type] = {
+                    'filename': filename,
+                    'exists': False
+                }
+
+        return jsonify(files_info), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 # ==================== EVENT LOG ENDPOINTS (HACKATHON REQUIREMENT #2) ====================

@@ -158,6 +158,28 @@ export class BackendApiService {
     );
   }
 
+  // ==================== FILE UPLOAD ENDPOINTS ====================
+
+  /**
+   * Upload MES/ERP/PLM Excel file
+   * @param file - The Excel file to upload
+   * @param type - File type: 'mes', 'erp', or 'plm'
+   */
+  uploadFile(file: File, type: 'mes' | 'erp' | 'plm'): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', type);
+
+    return this.http.post(`${this.baseUrl}/v2/upload`, formData);
+  }
+
+  /**
+   * Get information about currently loaded data files
+   */
+  getCurrentFiles(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/v2/current-files`);
+  }
+
   // ==================== EVENT LOG ENDPOINTS ====================
 
   /**

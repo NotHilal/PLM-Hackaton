@@ -1,25 +1,11 @@
-<div class="data-upload-wrapper">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <h2 class="page-title">Data Import Center</h2>
-      <p class="page-subtitle">Upload and manage your manufacturing data files</p>
-    </div>
-    <div class="header-stats">
-      <div class="stat-badge">
-        <span class="stat-icon">📊</span>
-        <span class="stat-text">Excel/CSV Support</span>
-      </div>
-      <div class="stat-badge">
-        <span class="stat-icon">⚡</span>
-        <span class="stat-text">Auto-detection</span>
-      </div>
-    </div>
+<div class="data-upload-page">
+  <!-- File Upload Section -->
+  <div class="upload-section">
+    <app-file-uploader></app-file-uploader>
   </div>
 
-  <!-- Main Content Grid -->
-  <div class="data-upload-tab-container">
-    <app-sidebar></app-sidebar>
+  <!-- Employee List Section -->
+  <div class="employee-section">
     <app-employee-sidebar></app-employee-sidebar>
   </div>
 </div>

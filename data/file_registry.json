@@ -1,0 +1,35 @@
+{
+  "mes": [
+    {
+      "id": "mes_20251128_014817",
+      "original_name": "MES_Extraction.xlsx",
+      "stored_name": "mes_20251128_014817.xlsx",
+      "file_type": "mes",
+      "uploaded_at": "2025-11-28T01:48:17.296127",
+      "size": 16046,
+      "active": true
+    }
+  ],
+  "erp": [
+    {
+      "id": "erp_20251128_014821",
+      "original_name": "ERP_Equipes_Airplus2.xlsx",
+      "stored_name": "erp_20251128_014821.xlsx",
+      "file_type": "erp",
+      "uploaded_at": "2025-11-28T01:48:21.300079",
+      "size": 28189,
+      "active": true
+    }
+  ],
+  "plm": [
+    {
+      "id": "plm_20251128_014824",
+      "original_name": "PLM_DataSet.xlsx",
+      "stored_name": "plm_20251128_014824.xlsx",
+      "file_type": "plm",
+      "uploaded_at": "2025-11-28T01:48:24.706798",
+      "size": 16360,
+      "active": true
+    }
+  ]
+}

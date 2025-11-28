@@ -1,0 +1,135 @@
+<div class="modal-backdrop" (click)="onBackdropClick($event)">
+  <div class="modal-container">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h2>📁 File Version History</h2>
+      <button class="close-btn" (click)="closeModal()">✖</button>
+    </div>
+
+    <!-- Message Alert -->
+    <div *ngIf="message" class="alert" [class.alert-success]="messageType === 'success'" [class.alert-error]="messageType === 'error'">
+      {{ message }}
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button
+        class="tab"
+        [class.active]="selectedTab === 'mes'"
+        (click)="selectTab('mes')">
+        🏭 MES Data
+        <span class="badge">{{ fileRegistry.mes.length }}</span>
+      </button>
+      <button
+        class="tab"
+        [class.active]="selectedTab === 'erp'"
+        (click)="selectTab('erp')">
+        💼 ERP Data
+        <span class="badge">{{ fileRegistry.erp.length }}</span>
+      </button>
+      <button
+        class="tab"
+        [class.active]="selectedTab === 'plm'"
+        (click)="selectTab('plm')">
+        📐 PLM Data
+        <span class="badge">{{ fileRegistry.plm.length }}</span>
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+
+    <!-- File List -->
+    <div *ngIf="!loading" class="file-list">
+      <div *ngIf="getTabFiles().length === 0" class="empty-state">
+        <p>📭 No {{ selectedTab.toUpperCase() }} files uploaded yet</p>
+        <small>Upload files from the Data page to see them here</small>
+      </div>
+
+      <div *ngFor="let file of getTabFiles()" class="file-card" [class.active]="file.active">
+        <!-- Active Badge -->
+        <div *ngIf="file.active" class="active-badge">
+          ⭐ ACTIVE
+        </div>
+
+        <!-- File Info -->
+        <div class="file-info">
+          <div class="file-header">
+            <h3 class="file-name">{{ file.original_name }}</h3>
+            <span class="file-id">ID: {{ file.id }}</span>
+          </div>
+
+          <div class="file-meta">
+            <div class="meta-item">
+              <span class="meta-icon">📅</span>
+              <span class="meta-label">Uploaded:</span>
+              <span class="meta-value">{{ formatDate(file.uploaded_at) }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-icon">📊</span>
+              <span class="meta-label">Size:</span>
+              <span class="meta-value">{{ formatSize(file.size) }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-icon">💾</span>
+              <span class="meta-label">Stored as:</span>
+              <span class="meta-value">{{ file.stored_name }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="file-actions">
+          <button
+            *ngIf="!file.active"
+            class="btn btn-primary"
+            (click)="switchToVersion(file.id)"
+            [disabled]="loading">
+            🔄 Switch to This Version
+          </button>
+
+          <button
+            *ngIf="file.active"
+            class="btn btn-active"
+            disabled>
+            ✅ Currently Active
+          </button>
+
+          <button
+            *ngIf="!file.active"
+            class="btn btn-danger"
+            (click)="deleteVersion(file.id, file.original_name)"
+            [disabled]="loading">
+            🗑️ Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <p class="footer-note">
+        💡 Tip: Switch between versions to compare different data sets. The active version is used for all KPI calculations.
+      </p>
+    </div>
+  </div>
+
+  <!-- Confirmation Dialog -->
+  <div *ngIf="showConfirmDialog" class="confirm-dialog">
+    <div class="confirm-content">
+      <h3>⚠️ Confirm Action</h3>
+      <p>{{ confirmMessage }}</p>
+      <div class="confirm-buttons">
+        <button class="btn btn-primary" (click)="confirmDialogYes()">
+          ✓ Yes
+        </button>
+        <button class="btn btn-secondary" (click)="confirmDialogNo()">
+          ✗ No
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

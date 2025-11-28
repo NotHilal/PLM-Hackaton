@@ -10,6 +10,9 @@
         <span class="app-subtitle">PLM AI Process Mining</span>
       </div>
       <div class="header-right">
+        <button class="btn btn-primary" (click)="openFileVersionsModal()">
+          <span>📁 File Versions</span>
+        </button>
         <button class="btn btn-secondary">
           <span>Help</span>
         </button>
@@ -100,5 +103,11 @@
     </main>
   </div>
 </div>
+
+<!-- File Versions Modal -->
+<app-file-versions-modal
+  *ngIf="fileVersionsModalOpen"
+  (close)="closeFileVersionsModal()">
+</app-file-versions-modal>
 
 <router-outlet />

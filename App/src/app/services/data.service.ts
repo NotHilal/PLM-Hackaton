@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 export interface UploadedFile {
   file: File;
@@ -77,7 +78,42 @@ export class DataService {
   public selectedDocument$ = this.selectedDocumentSubject.asObservable();
   public graphData$ = this.graphDataSubject.asObservable();
 
-  constructor() {}
+  private baseUrl = 'http://localhost:5000/api';
+
+  constructor(private http: HttpClient) {
+    // Load employees on service initialization
+    this.loadEmployees();
+  }
+
+  /**
+   * Load employee data from backend ERP
+   */
+  loadEmployees(): void {
+    this.http.get<any>(`${this.baseUrl}/v2/data/erp`).subscribe({
+      next: (data) => {
+        console.log('📊 ERP data loaded:', data);
+        if (data.employees && Array.isArray(data.employees)) {
+          this.employees.set(data.employees);
+          console.log(`✅ Loaded ${data.employees.length} employees`);
+        } else {
+          console.log('⚠️ No employees found in response');
+          this.employees.set([]);
+        }
+      },
+      error: (err) => {
+        console.error('❌ Error loading ERP data:', err);
+        console.log('⚠️ Using empty employee list');
+        this.employees.set([]);
+      }
+    });
+  }
+
+  /**
+   * Reload employees (useful after upload)
+   */
+  reloadEmployees(): void {
+    this.loadEmployees();
+  }
 
   private getMockGraphData(): GraphData {
     return {
