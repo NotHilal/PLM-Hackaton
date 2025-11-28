@@ -30,6 +30,43 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 kpi_calc = None
 
 
+def sync_active_files_from_registry():
+    """Sync active files from registry to data folder on startup"""
+    try:
+        print("🔄 Syncing active files from registry...")
+        registry = load_file_registry()
+
+        file_mapping = {
+            'mes': 'MES_Extraction.xlsx',
+            'erp': 'ERP_Equipes Airplus.xlsx',
+            'plm': 'PLM_DataSet.xlsx'
+        }
+
+        for file_type, active_filename in file_mapping.items():
+            if file_type in registry and len(registry[file_type]) > 0:
+                # Find the active file
+                active_file = None
+                for file_info in registry[file_type]:
+                    if file_info.get('active', False):
+                        active_file = file_info
+                        break
+
+                if active_file:
+                    # Copy active file from uploads to data folder
+                    source_path = os.path.join(UPLOAD_FOLDER, active_file['stored_name'])
+                    dest_path = os.path.join(ACTIVE_FOLDER, active_filename)
+
+                    if os.path.exists(source_path):
+                        shutil.copy2(source_path, dest_path)
+                        print(f"✅ Synced {file_type.upper()}: {active_file['stored_name']} → {active_filename}")
+                    else:
+                        print(f"⚠️  Active file not found: {source_path}")
+
+        print("✅ File sync complete")
+    except Exception as e:
+        print(f"⚠️  Error syncing files from registry: {e}")
+
+
 def load_data_files():
     """Load data from Excel files"""
     try:
@@ -64,7 +101,8 @@ def load_data_files():
         return None, None, None
 
 
-# Load data on startup
+# Sync active files from registry, then load data on startup
+sync_active_files_from_registry()
 erp_data, mes_data, plm_data = load_data_files()
 kpi_calc = KPICalculator(erp_data=erp_data, mes_data=mes_data, plm_data=plm_data)
 

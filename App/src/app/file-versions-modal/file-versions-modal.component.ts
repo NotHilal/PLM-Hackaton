@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 
@@ -41,7 +41,10 @@ export class FileVersionsModalComponent implements OnInit {
 
   private baseUrl = 'http://localhost:5000/api';
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
+  ) {
     console.log('📁 File Versions Modal constructed');
   }
 
@@ -53,11 +56,14 @@ export class FileVersionsModalComponent implements OnInit {
   loadFileVersions() {
     console.log('🔄 Loading file versions from:', `${this.baseUrl}/v2/files/list`);
     this.loading = true;
+    this.cdr.detectChanges(); // Force update to show loading state
+
     this.http.get<FileRegistry>(`${this.baseUrl}/v2/files/list`).subscribe({
       next: (data) => {
         console.log('✅ File versions loaded:', data);
         this.fileRegistry = data;
         this.loading = false;
+        this.cdr.detectChanges(); // Force update to show loaded data
       },
       error: (err) => {
         console.error('❌ Error loading file versions:', err);
@@ -68,6 +74,7 @@ export class FileVersionsModalComponent implements OnInit {
           url: err.url
         });
         this.loading = false;
+        this.cdr.detectChanges(); // Force update to show error state
         this.showMessage(`Failed to load file versions: ${err.statusText || 'Unknown error'}`, 'error');
       }
     });
@@ -85,17 +92,20 @@ export class FileVersionsModalComponent implements OnInit {
     this.confirmMessage = 'Switch to this version? This will update all data displays.';
     this.confirmAction = () => {
       this.loading = true;
+      this.cdr.detectChanges();
       this.http.post(`${this.baseUrl}/v2/files/active/${this.selectedTab}`, { file_id: fileId }).subscribe({
         next: (response: any) => {
           console.log('✅ Switched version:', response);
           this.showMessage(response.message || 'Version switched successfully', 'success');
           this.loadFileVersions();
           this.loading = false;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('❌ Error switching version:', err);
           this.showMessage('Failed to switch version', 'error');
           this.loading = false;
+          this.cdr.detectChanges();
         }
       });
     };
@@ -106,6 +116,7 @@ export class FileVersionsModalComponent implements OnInit {
     this.confirmMessage = `Delete ${fileName}? This cannot be undone.`;
     this.confirmAction = () => {
       this.loading = true;
+      this.cdr.detectChanges();
       this.http.delete(`${this.baseUrl}/v2/files/delete/${this.selectedTab}/${fileId}`).subscribe({
         next: (response: any) => {
           console.log('✅ Deleted version:', response);
@@ -116,6 +127,7 @@ export class FileVersionsModalComponent implements OnInit {
           console.error('❌ Error deleting version:', err);
           this.showMessage(err.error?.error || 'Failed to delete version', 'error');
           this.loading = false;
+          this.cdr.detectChanges();
         }
       });
     };
