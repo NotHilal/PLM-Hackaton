@@ -1,0 +1,208 @@
+.analytics-container {
+  padding: var(--spacing-xl);
+  background: var(--bg-primary);
+  min-height: 100vh;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.header-content {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+  background: linear-gradient(90deg, var(--primary-blue-light), var(--accent-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Section Headers */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.section-icon {
+  font-size: 2rem;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* KPI Cards */
+.kpi-header {
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Error Card */
+.error-card {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--error);
+  text-align: center;
+  padding: var(--spacing-2xl);
+}
+
+.error-card h3 {
+  color: var(--error);
+  margin-bottom: var(--spacing-md);
+}
+
+.error-card p {
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Charts */
+.chart-container {
+  background: var(--bg-card);
+  padding: var(--spacing-lg);
+  padding-bottom: var(--spacing-2xl);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  min-height: 450px;
+}
+
+.chart-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+/* Chart text styling - ALL TEXT IN WHITE */
+/* Axis tick values */
+.chart-container ::ng-deep .x-axis .tick text,
+.chart-container ::ng-deep .x.axis .tick text {
+  fill: white !important;
+  font-size: 0.875rem;
+  transform: rotate(-45deg);
+  text-anchor: end !important;
+}
+
+.chart-container ::ng-deep .y-axis .tick text,
+.chart-container ::ng-deep .y.axis .tick text {
+  fill: white !important;
+  font-size: 0.875rem;
+}
+
+/* Axis titles/labels */
+.chart-container ::ng-deep .axis-label,
+.chart-container ::ng-deep .x-axis-label,
+.chart-container ::ng-deep .y-axis-label,
+.chart-container ::ng-deep text.axis-label,
+.chart-container ::ng-deep .x-axis-label text,
+.chart-container ::ng-deep .y-axis-label text {
+  fill: white !important;
+  font-size: 0.875rem;
+}
+
+/* Legend */
+.chart-container ::ng-deep .legend .legend-label,
+.chart-container ::ng-deep .legend-labels text {
+  fill: white !important;
+}
+
+.chart-container ::ng-deep .legend-title,
+.chart-container ::ng-deep .legend .legend-title-text {
+  font-weight: 600;
+  fill: white !important;
+}
+
+/* Catch-all for any remaining text in charts */
+.chart-container ::ng-deep ngx-charts-bar-vertical text,
+.chart-container ::ng-deep ngx-charts-bar-vertical-stacked text {
+  fill: white !important;
+}
+
+/* Insights Card */
+.insights-card {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+  border-left: 4px solid var(--accent-purple);
+}
+
+.insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.insight-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.insight-content strong {
+  display: block;
+  color: var(--text-primary);
+  font-size: 1rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.insight-content p {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .analytics-container {
+    padding: var(--spacing-lg);
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .analytics-container {
+    padding: var(--spacing-md);
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .grid-cols-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+}

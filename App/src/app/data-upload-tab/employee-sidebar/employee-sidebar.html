@@ -1,36 +1,148 @@
-<div class="employee-sidebar">
-  <h2 class="list-title">Employés</h2>
-  <div class="employee-list">
-    <p *ngIf="dataService.employees().length === 0" class="placeholder">Aucun employé chargé</p>
-    <ul>
-      <li *ngFor="let emp of dataService.employees()" class="employee-item" (dblclick)="openPopup(emp)">
-        <div class="employee-info">
-          <span class="employee-name">{{ emp['Prénom'] }} {{ emp['Nom'] }}</span>
-          <span class="employee-qualif">{{ emp['Qualification'] }}</span>
-          <span class="employee-poste">{{ emp['Poste de montage'] }}</span>
-        </div>
-      </li>
-    </ul>
+<div class="employee-sidebar-pro">
+  <!-- Search Section -->
+  <div class="search-section">
+    <div class="search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        class="search-input"
+        [value]="searchTerm()"
+        (input)="onSearchChange($any($event.target).value)"
+        placeholder="Rechercher par nom, qualification, poste, matricule...">
+      <button
+        *ngIf="searchTerm()"
+        class="clear-btn"
+        (click)="clearSearch()"
+        title="Effacer">
+        ✖
+      </button>
+    </div>
+    <div class="results-count">
+      <span class="count-badge">{{ filteredEmployees().length }}</span> employé(s)
+    </div>
   </div>
 
-  <!-- Popup pour détails employé -->
+  <!-- Empty State -->
+  <div *ngIf="dataService.employees().length === 0" class="empty-state">
+    <div class="empty-icon">📂</div>
+    <h3>Aucune donnée disponible</h3>
+    <p>Veuillez charger un fichier ERP pour voir les employés</p>
+  </div>
+
+  <!-- No Results State -->
+  <div *ngIf="dataService.employees().length > 0 && filteredEmployees().length === 0" class="empty-state">
+    <div class="empty-icon">🔍</div>
+    <h3>Aucun résultat trouvé</h3>
+    <p>Essayez de modifier votre recherche</p>
+    <button class="btn-secondary" (click)="clearSearch()">
+      Effacer la recherche
+    </button>
+  </div>
+
+  <!-- Employees Grid -->
+  <div *ngIf="dataService.employees().length > 0 && filteredEmployees().length > 0" class="employees-grid">
+    <div *ngFor="let emp of filteredEmployees()" class="employee-card" (click)="openPopup(emp)">
+      <div class="card-header">
+        <div class="avatar" [style.background]="getExperienceColor(emp['Niveau d\'expérience'])">
+          {{ getInitials(emp['Prénom'], emp['Nom']) }}
+        </div>
+        <div class="card-title">
+          <h3 class="employee-name">{{ emp['Prénom'] }} {{ emp['Nom'] }}</h3>
+          <span class="employee-matricule">{{ emp['Matricule'] }}</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="info-row">
+          <span class="info-icon">💼</span>
+          <span class="info-text">{{ emp['Qualification'] }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">🔧</span>
+          <span class="info-text">{{ emp['Poste de montage'] }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">📅</span>
+          <span class="info-text">{{ emp['Âge'] }} ans</span>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">💰</span>
+          <span class="info-text">{{ emp['Coût horaire (€)'] }}€/h</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="badge" [style.background]="getExperienceColor(emp['Niveau d\'expérience'])">
+          {{ emp['Niveau d\'expérience'] }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enhanced Popup -->
   <div *ngIf="selectedEmployee()" class="popup-overlay" (click)="closePopup()">
-    <div class="popup-content" (click)="$event.stopPropagation()">
-      <button class="close-btn" (click)="closePopup()">✖</button>
-      <h3>{{ selectedEmployee()['Prénom'] }} {{ selectedEmployee()['Nom'] }}</h3>
-      <dl>
-        <dt>Matricule</dt><dd>{{ selectedEmployee()['Matricule'] }}</dd>
-        <dt>Âge</dt><dd>{{ selectedEmployee()['Âge'] }}</dd>
-        <dt>Qualification</dt><dd>{{ selectedEmployee()['Qualification'] }}</dd>
-        <dt>Poste de montage</dt><dd>{{ selectedEmployee()['Poste de montage'] }}</dd>
-        <dt>Description du poste</dt><dd>{{ selectedEmployee()['Description du poste'] }}</dd>
-        <dt>Compétences</dt><dd>{{ selectedEmployee()['Compétences'] }}</dd>
-        <dt>Habilitations</dt><dd>{{ selectedEmployee()['Habilitations'] }}</dd>
-        <dt>Coût horaire (€)</dt><dd>{{ selectedEmployee()['Coût horaire (€)'] }}</dd>
-        <dt>Niveau d'expérience</dt><dd>{{ selectedEmployee()['Niveau d\'expérience'] }}</dd>
-        <dt>Rotation</dt><dd>{{ selectedEmployee()['Rotation'] }}</dd>
-        <dt>Commentaire de Carrière</dt><dd>{{ selectedEmployee()['Commentaire de Carrière'] }}</dd>
-      </dl>
+    <div class="popup-content-pro" (click)="$event.stopPropagation()">
+      <button class="close-btn-pro" (click)="closePopup()">✖</button>
+
+      <div class="popup-header">
+        <div class="popup-avatar" [style.background]="getExperienceColor(selectedEmployee()['Niveau d\'expérience'])">
+          {{ getInitials(selectedEmployee()['Prénom'], selectedEmployee()['Nom']) }}
+        </div>
+        <div class="popup-title-section">
+          <h2>{{ selectedEmployee()['Prénom'] }} {{ selectedEmployee()['Nom'] }}</h2>
+          <p class="popup-subtitle">{{ selectedEmployee()['Qualification'] }}</p>
+          <span class="badge-large" [style.background]="getExperienceColor(selectedEmployee()['Niveau d\'expérience'])">
+            {{ selectedEmployee()['Niveau d\'expérience'] }}
+          </span>
+        </div>
+      </div>
+
+      <div class="popup-body">
+        <div class="info-section">
+          <h3>📋 Informations Générales</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Matricule</span>
+              <span class="info-value">{{ selectedEmployee()['Matricule'] }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Âge</span>
+              <span class="info-value">{{ selectedEmployee()['Âge'] }} ans</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Coût horaire</span>
+              <span class="info-value">{{ selectedEmployee()['Coût horaire (€)'] }}€/h</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Rotation</span>
+              <span class="info-value">{{ selectedEmployee()['Rotation'] }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <h3>💼 Poste & Compétences</h3>
+          <div class="info-item-full">
+            <span class="info-label">Poste de montage</span>
+            <span class="info-value">{{ selectedEmployee()['Poste de montage'] }}</span>
+          </div>
+          <div class="info-item-full">
+            <span class="info-label">Description du poste</span>
+            <span class="info-value">{{ selectedEmployee()['Description du poste'] }}</span>
+          </div>
+          <div class="info-item-full">
+            <span class="info-label">Compétences</span>
+            <span class="info-value">{{ selectedEmployee()['Compétences'] }}</span>
+          </div>
+          <div class="info-item-full">
+            <span class="info-label">Habilitations</span>
+            <span class="info-value">{{ selectedEmployee()['Habilitations'] }}</span>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <h3>📝 Commentaire de Carrière</h3>
+          <p class="career-comment">{{ selectedEmployee()['Commentaire de Carrière'] }}</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>

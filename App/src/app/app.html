@@ -47,6 +47,20 @@
           <span class="nav-icon">📋</span>
           <span class="nav-label">Event Log</span>
         </a>
+        <a
+          class="nav-item"
+          [class.active]="activeRoute === 'resource-analytics'"
+          (click)="navigate('resource-analytics')">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label">Ressources & Supply Chain</span>
+        </a>
+        <a
+          class="nav-item"
+          [class.active]="activeRoute === 'employee-info'"
+          (click)="navigate('employee-info')">
+          <span class="nav-icon">👥</span>
+          <span class="nav-label">Info Employés</span>
+        </a>
 
         <!-- Optionnel: TypeScript versions (cachées par défaut) -->
         <!-- Décommenter si besoin de comparer
@@ -98,6 +112,8 @@
       <app-insights-tab *ngIf="activeRoute === 'insights'"></app-insights-tab>
       <app-python-insights *ngIf="activeRoute === 'python-insights'"></app-python-insights>
       <app-event-log *ngIf="activeRoute === 'event-log'"></app-event-log>
+      <app-resource-analytics *ngIf="activeRoute === 'resource-analytics'"></app-resource-analytics>
+      <app-employee-info *ngIf="activeRoute === 'employee-info'"></app-employee-info>
       <app-data-upload-tab *ngIf="activeRoute === 'data'"></app-data-upload-tab>
       <app-test-backend *ngIf="activeRoute === 'test'"></app-test-backend>
     </main>

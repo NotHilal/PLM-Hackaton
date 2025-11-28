@@ -643,6 +643,248 @@ class KPICalculator:
                       f"Potentiel d'optimisation: -{kpis['deltaWIP']}% WIP, -{abs(kpis['deltaLeadTime'])}% Lead Time."
         }
 
+    # ==================== RESOURCE & SUPPLY CHAIN ANALYTICS ====================
+
+    def calculate_resource_kpis(self) -> Dict[str, Any]:
+        """Calculate Resource (HR) KPIs from ERP data"""
+        if self.erp_data is None:
+            return self._mock_resource_kpis()
+
+        try:
+            df = self.erp_data
+
+            # Column mappings
+            age_col = self._col_or_none(df, ['Âge', 'Age', 'age'])
+            cost_col = self._col_or_none(df, ['Coût horaire (€)', 'Cout_horaire', 'cout_horaire'])
+            rotation_col = self._col_or_none(df, ['Rotation', 'rotation'])
+
+            total_employees = len(df)
+
+            # Average age
+            if age_col:
+                avg_age = round(float(df[age_col].dropna().mean()), 1)
+            else:
+                avg_age = 35.0
+
+            # Labor costs
+            if cost_col:
+                avg_labor_cost = round(float(df[cost_col].dropna().mean()), 2)
+                total_labor_cost = round(float(df[cost_col].dropna().sum()) * 160, 2)  # Monthly (160h)
+            else:
+                avg_labor_cost = 25.0
+                total_labor_cost = total_employees * 25.0 * 160
+
+            # Rotation rate
+            if rotation_col:
+                # Check if rotation is numeric or text
+                try:
+                    rotation_rate = round(float(df[rotation_col].dropna().mean()), 1)
+                except:
+                    rotation_rate = 12.5
+            else:
+                rotation_rate = 12.5
+
+            return {
+                'totalEmployees': total_employees,
+                'avgLaborCost': avg_labor_cost,
+                'totalLaborCost': total_labor_cost,
+                'avgAge': avg_age,
+                'avgExperience': 5.5,
+                'rotationRate': rotation_rate
+            }
+        except Exception as e:
+            print(f"Error calculating resource KPIs: {e}")
+            return self._mock_resource_kpis()
+
+    def _mock_resource_kpis(self) -> Dict[str, Any]:
+        """Mock resource KPIs"""
+        return {
+            'totalEmployees': 150,
+            'avgLaborCost': 28.50,
+            'totalLaborCost': 684000.0,
+            'avgAge': 37.5,
+            'avgExperience': 6.2,
+            'rotationRate': 14.3
+        }
+
+    def calculate_supply_chain_kpis(self) -> Dict[str, Any]:
+        """Calculate Supply Chain KPIs from PLM data"""
+        if self.plm_data is None:
+            return self._mock_supply_chain_kpis()
+
+        try:
+            df = self.plm_data
+
+            # Column mappings
+            cost_col = self._col_or_none(df, ['Coût achat pièce (€)', 'Cout_achat', 'cout'])
+            lead_time_col = self._col_or_none(df, ['Délai Approvisionnement', 'Delai', 'delai'])
+            criticality_col = self._col_or_none(df, ['Criticité', 'Criticite', 'criticite'])
+            mass_col = self._col_or_none(df, ['Masse (kg)', 'Masse', 'masse'])
+            cao_col = self._col_or_none(df, ['Temps CAO (h)', 'Temps_CAO', 'temps_cao'])
+
+            total_parts = len(df)
+
+            # Procurement cost
+            if cost_col:
+                total_procurement_cost = round(float(df[cost_col].dropna().sum()), 2)
+            else:
+                total_procurement_cost = 0.0
+
+            # Lead time
+            if lead_time_col:
+                avg_lead_time = round(float(df[lead_time_col].dropna().mean()), 1)
+            else:
+                avg_lead_time = 15.0
+
+            # Criticality
+            if criticality_col:
+                # Check if criticality is numeric or categorical
+                if pd.api.types.is_numeric_dtype(df[criticality_col]):
+                    avg_criticality = round(float(df[criticality_col].dropna().mean()), 2)
+                    critical_parts_count = int((df[criticality_col] >= 3).sum())
+                else:
+                    # Categorical criticality - map to numeric values
+                    severity_map = {'Basse': 1, 'Moyenne': 2, 'Haute': 3, 'Critique': 4,
+                                    'Basse_X': 1, 'Moyenne_X': 2, 'Haute_X': 3, 'Critique_X': 4}
+                    numeric_crit = df[criticality_col].map(severity_map).fillna(2)
+                    avg_criticality = round(float(numeric_crit.mean()), 2)
+                    # Count "Haute" and "Critique" as critical parts
+                    critical_parts_count = int(((df[criticality_col].str.contains('Haute', na=False)) |
+                                                 (df[criticality_col].str.contains('Critique', na=False))).sum())
+            else:
+                avg_criticality = 2.5
+                critical_parts_count = int(total_parts * 0.3)
+
+            # Mass
+            if mass_col:
+                total_weight = round(float(df[mass_col].dropna().sum()), 2)
+            else:
+                total_weight = 0.0
+
+            # CAO time
+            if cao_col:
+                total_cao_time = round(float(df[cao_col].dropna().sum()), 1)
+            else:
+                total_cao_time = 0.0
+
+            return {
+                'totalParts': total_parts,
+                'totalProcurementCost': total_procurement_cost,
+                'avgLeadTime': avg_lead_time,
+                'criticalPartsCount': critical_parts_count,
+                'avgCriticality': avg_criticality,
+                'totalWeight': total_weight,
+                'totalCAOTime': total_cao_time
+            }
+        except Exception as e:
+            print(f"Error calculating supply chain KPIs: {e}")
+            return self._mock_supply_chain_kpis()
+
+    def _mock_supply_chain_kpis(self) -> Dict[str, Any]:
+        """Mock supply chain KPIs"""
+        return {
+            'totalParts': 40,
+            'totalProcurementCost': 2500000.0,
+            'avgLeadTime': 18.5,
+            'criticalPartsCount': 12,
+            'avgCriticality': 2.8,
+            'totalWeight': 3500.0,
+            'totalCAOTime': 450.0
+        }
+
+    def get_cost_by_qualification_chart(self) -> List[Dict[str, Any]]:
+        """Get cost by qualification chart data"""
+        if self.erp_data is None:
+            return []
+
+        try:
+            df = self.erp_data
+            qual_col = self._col_or_none(df, ['Qualification', 'qualification'])
+            cost_col = self._col_or_none(df, ['Coût horaire (€)', 'Cout_horaire', 'cout_horaire'])
+
+            if qual_col and cost_col:
+                grouped = df.groupby(qual_col)[cost_col].sum().reset_index()
+                grouped.columns = ['name', 'value']
+                grouped['value'] = grouped['value'].round(2)
+                return grouped.to_dict('records')
+            return []
+        except Exception as e:
+            print(f"Error generating cost by qualification chart: {e}")
+            return []
+
+    def get_experience_distribution_chart(self) -> List[Dict[str, Any]]:
+        """Get experience distribution chart data"""
+        if self.erp_data is None:
+            return []
+
+        try:
+            df = self.erp_data
+            exp_col = self._col_or_none(df, ["Niveau d'expérience", 'Niveau_experience', 'experience'])
+
+            if exp_col:
+                counts = df[exp_col].value_counts().reset_index()
+                counts.columns = ['name', 'value']
+                return counts.to_dict('records')
+            return []
+        except Exception as e:
+            print(f"Error generating experience distribution chart: {e}")
+            return []
+
+    def get_supplier_distribution_chart(self) -> List[Dict[str, Any]]:
+        """Get supplier distribution chart data (Top 10)"""
+        if self.plm_data is None:
+            return []
+
+        try:
+            df = self.plm_data
+            supplier_col = self._col_or_none(df, ['Fournisseur', 'fournisseur', 'supplier'])
+
+            if supplier_col:
+                counts = df[supplier_col].value_counts().head(10).reset_index()
+                counts.columns = ['name', 'value']
+                return counts.to_dict('records')
+            return []
+        except Exception as e:
+            print(f"Error generating supplier distribution chart: {e}")
+            return []
+
+    def get_criticality_distribution_chart(self) -> List[Dict[str, Any]]:
+        """Get criticality distribution chart data"""
+        if self.plm_data is None:
+            return []
+
+        try:
+            df = self.plm_data
+            crit_col = self._col_or_none(df, ['Criticité', 'Criticite', 'criticite'])
+
+            if crit_col:
+                # Check if criticality is numeric or categorical
+                if pd.api.types.is_numeric_dtype(df[crit_col]):
+                    # Numeric criticality - create bins
+                    df_copy = df.copy()
+                    df_copy['crit_level'] = pd.cut(df_copy[crit_col],
+                                                    bins=[0, 1, 2, 3, 4, 5],
+                                                    labels=['Très Faible (0-1)', 'Faible (1-2)', 'Moyenne (2-3)', 'Élevée (3-4)', 'Critique (4-5)'],
+                                                    include_lowest=True)
+                    counts = df_copy['crit_level'].value_counts().reset_index()
+                else:
+                    # Categorical criticality (e.g., "Basse_X", "Moyenne_X", etc.)
+                    counts = df[crit_col].value_counts().reset_index()
+                    # Clean up labels - remove "_X" suffix if present
+                    counts[crit_col] = counts[crit_col].astype(str).str.replace('_X', '', regex=False)
+
+                    # Map French terms and sort by severity
+                    severity_order = {'Basse': 1, 'Moyenne': 2, 'Haute': 3, 'Critique': 4}
+                    counts['sort_order'] = counts[crit_col].map(severity_order).fillna(5)
+                    counts = counts.sort_values('sort_order').drop('sort_order', axis=1)
+
+                counts.columns = ['name', 'value']
+                return counts.to_dict('records')
+            return []
+        except Exception as e:
+            print(f"Error generating criticality distribution chart: {e}")
+            return []
+
     # ==================== ALL KPIs COMBINED ====================
 
     def get_all_kpis(self) -> Dict[str, Any]:

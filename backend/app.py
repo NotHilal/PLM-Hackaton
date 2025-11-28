@@ -270,6 +270,62 @@ def get_rework_chart_data():
         return jsonify({'error': str(e)}), 500
 
 
+# ==================== ANALYTICS ENDPOINTS (ERP & PLM) ====================
+
+@app.route('/api/v2/analytics/resource-kpis', methods=['GET'])
+def get_resource_kpis():
+    """Get Resource (HR) KPIs from ERP data"""
+    try:
+        return jsonify(kpi_calc.calculate_resource_kpis()), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v2/analytics/supply-chain-kpis', methods=['GET'])
+def get_supply_chain_kpis():
+    """Get Supply Chain KPIs from PLM data"""
+    try:
+        return jsonify(kpi_calc.calculate_supply_chain_kpis()), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v2/analytics/cost-by-qualification', methods=['GET'])
+def get_cost_by_qualification_chart():
+    """Get cost by qualification chart data"""
+    try:
+        return jsonify(kpi_calc.get_cost_by_qualification_chart()), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v2/analytics/experience-distribution', methods=['GET'])
+def get_experience_distribution_chart():
+    """Get experience distribution chart data"""
+    try:
+        return jsonify(kpi_calc.get_experience_distribution_chart()), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v2/analytics/supplier-distribution', methods=['GET'])
+def get_supplier_distribution_chart():
+    """Get supplier distribution chart data"""
+    try:
+        return jsonify(kpi_calc.get_supplier_distribution_chart()), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v2/analytics/criticality-distribution', methods=['GET'])
+def get_criticality_distribution_chart():
+    """Get criticality distribution chart data"""
+    try:
+        return jsonify(kpi_calc.get_criticality_distribution_chart()), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 # ==================== UTILITY ENDPOINTS ====================
 
 @app.route('/api/health', methods=['GET'])

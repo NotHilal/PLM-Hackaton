@@ -158,6 +158,62 @@ export class BackendApiService {
     );
   }
 
+  // ==================== RESOURCE ANALYTICS ENDPOINTS ====================
+
+  /**
+   * Get Resource (HR) KPIs from ERP data
+   */
+  getResourceKPIs(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/v2/analytics/resource-kpis`).pipe(
+      shareReplay(1)
+    );
+  }
+
+  /**
+   * Get Supply Chain KPIs from PLM data
+   */
+  getSupplyChainKPIs(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/v2/analytics/supply-chain-kpis`).pipe(
+      shareReplay(1)
+    );
+  }
+
+  /**
+   * Get Cost by Qualification chart data
+   */
+  getCostByQualificationChart(): Observable<ChartDataPoint[]> {
+    return this.http.get<ChartDataPoint[]>(`${this.baseUrl}/v2/analytics/cost-by-qualification`).pipe(
+      shareReplay(1)
+    );
+  }
+
+  /**
+   * Get Experience Distribution chart data
+   */
+  getExperienceDistributionChart(): Observable<ChartDataPoint[]> {
+    return this.http.get<ChartDataPoint[]>(`${this.baseUrl}/v2/analytics/experience-distribution`).pipe(
+      shareReplay(1)
+    );
+  }
+
+  /**
+   * Get Supplier Distribution chart data
+   */
+  getSupplierDistributionChart(): Observable<ChartDataPoint[]> {
+    return this.http.get<ChartDataPoint[]>(`${this.baseUrl}/v2/analytics/supplier-distribution`).pipe(
+      shareReplay(1)
+    );
+  }
+
+  /**
+   * Get Criticality Distribution chart data
+   */
+  getCriticalityDistributionChart(): Observable<ChartDataPoint[]> {
+    return this.http.get<ChartDataPoint[]>(`${this.baseUrl}/v2/analytics/criticality-distribution`).pipe(
+      shareReplay(1)
+    );
+  }
+
   // ==================== FILE UPLOAD ENDPOINTS ====================
 
   /**

@@ -100,10 +100,11 @@
 .chart-container {
   background: var(--bg-card);
   padding: var(--spacing-lg);
+  padding-bottom: var(--spacing-2xl);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   overflow: hidden;
-  min-height: 400px;
+  min-height: 450px;
 }
 
 .chart-title {
@@ -122,6 +123,51 @@
 
 .chart-container ::ng-deep .ngx-charts {
   overflow-x: auto;
+}
+
+/* Chart text styling - ALL TEXT IN WHITE */
+/* Axis tick values */
+.chart-container ::ng-deep .x-axis .tick text,
+.chart-container ::ng-deep .x.axis .tick text {
+  fill: white !important;
+  font-size: 0.875rem;
+  transform: rotate(-45deg);
+  text-anchor: end !important;
+}
+
+.chart-container ::ng-deep .y-axis .tick text,
+.chart-container ::ng-deep .y.axis .tick text {
+  fill: white !important;
+  font-size: 0.875rem;
+}
+
+/* Axis titles/labels */
+.chart-container ::ng-deep .axis-label,
+.chart-container ::ng-deep .x-axis-label,
+.chart-container ::ng-deep .y-axis-label,
+.chart-container ::ng-deep text.axis-label,
+.chart-container ::ng-deep .x-axis-label text,
+.chart-container ::ng-deep .y-axis-label text {
+  fill: white !important;
+  font-size: 0.875rem;
+}
+
+/* Legend */
+.chart-container ::ng-deep .legend .legend-label,
+.chart-container ::ng-deep .legend-labels text {
+  fill: white !important;
+}
+
+.chart-container ::ng-deep .legend-title,
+.chart-container ::ng-deep .legend .legend-title-text {
+  font-weight: 600;
+  fill: white !important;
+}
+
+/* Catch-all for any remaining text in charts */
+.chart-container ::ng-deep ngx-charts-bar-vertical text,
+.chart-container ::ng-deep ngx-charts-bar-vertical-stacked text {
+  fill: white !important;
 }
 
 /* ==================== VARIANCE BREAKDOWN STYLING ==================== */

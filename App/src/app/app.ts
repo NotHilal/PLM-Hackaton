@@ -10,8 +10,10 @@ import { PythonOverviewComponent } from './python-overview/python-overview.compo
 import { PythonInsightsComponent } from './python-insights/python-insights.component';
 import { EventLogComponent } from './event-log/event-log.component';
 import { FileVersionsModalComponent } from './file-versions-modal/file-versions-modal.component';
+import { ResourceAnalyticsComponent } from './resource-analytics/resource-analytics.component';
+import { EmployeeInfoComponent } from './employee-info/employee-info.component';
 
-type RouteType = 'overview' | 'analytics' | 'insights' | 'data' | 'test' | 'python-overview' | 'python-insights' | 'event-log';
+type RouteType = 'overview' | 'analytics' | 'insights' | 'data' | 'test' | 'python-overview' | 'python-insights' | 'event-log' | 'resource-analytics' | 'employee-info';
 
 @Component({
   selector: 'app-root',
@@ -27,7 +29,9 @@ type RouteType = 'overview' | 'analytics' | 'insights' | 'data' | 'test' | 'pyth
     PythonOverviewComponent,
     PythonInsightsComponent,
     EventLogComponent,
-    FileVersionsModalComponent
+    FileVersionsModalComponent,
+    ResourceAnalyticsComponent,
+    EmployeeInfoComponent
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
@@ -41,6 +45,7 @@ export class App {
   @ViewChild(PythonOverviewComponent) pythonOverviewComponent?: PythonOverviewComponent;
   @ViewChild(PythonInsightsComponent) pythonInsightsComponent?: PythonInsightsComponent;
   @ViewChild(EventLogComponent) eventLogComponent?: EventLogComponent;
+  @ViewChild(ResourceAnalyticsComponent) resourceAnalyticsComponent?: ResourceAnalyticsComponent;
 
   /**
    * Navigate to a different route
@@ -99,6 +104,12 @@ export class App {
     if (this.eventLogComponent) {
       console.log('🔄 Refreshing Event Log component');
       this.eventLogComponent.refresh();
+    }
+
+    // Refresh Resource Analytics if it's loaded
+    if (this.resourceAnalyticsComponent) {
+      console.log('🔄 Refreshing Resource Analytics component');
+      this.resourceAnalyticsComponent.refresh();
     }
 
     console.log('✅ All components refreshed');

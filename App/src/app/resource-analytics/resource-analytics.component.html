@@ -1,0 +1,232 @@
+<div class="analytics-container">
+  <!-- Header -->
+  <div class="page-header mb-xl">
+    <div class="header-content">
+      <h2 class="page-title">📊 Ressources & Supply Chain</h2>
+      <p class="page-subtitle">Analyse des ressources humaines et approvisionnements</p>
+    </div>
+    <button class="btn btn-primary" (click)="refresh()" [disabled]="loading">
+      {{ loading ? 'Chargement...' : 'Actualiser' }}
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Chargement des analyses...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="card error-card">
+    <h3>❌ Erreur</h3>
+    <p>{{ error }}</p>
+    <button class="btn btn-primary mt-md" (click)="refresh()">Réessayer</button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error && resourceKPIs && supplyChainKPIs">
+
+    <!-- ========== WORKFORCE SECTION ========== -->
+    <div class="section-header mb-lg">
+      <span class="section-icon">👥</span>
+      <h3 class="section-title">Ressources Humaines (ERP)</h3>
+    </div>
+
+    <!-- Workforce KPIs -->
+    <div class="kpi-header grid grid-cols-4 mb-xl">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Employés</div>
+        <div class="kpi-value">{{ resourceKPIs.totalEmployees }}</div>
+        <div class="text-muted" style="font-size: 0.875rem;">personnes</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Coût Horaire Moyen</div>
+        <div class="kpi-value">{{ resourceKPIs.avgLaborCost.toFixed(2) }}€</div>
+        <div class="text-muted" style="font-size: 0.875rem;">par heure</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Âge Moyen</div>
+        <div class="kpi-value">{{ resourceKPIs.avgAge.toFixed(0) }} ans</div>
+        <div class="text-muted" style="font-size: 0.875rem;">moyenne d'équipe</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Taux de Rotation</div>
+        <div class="kpi-value">{{ resourceKPIs.rotationRate.toFixed(1) }}%</div>
+        <div class="badge" [ngClass]="resourceKPIs.rotationRate > 20 ? 'badge-error' : resourceKPIs.rotationRate > 10 ? 'badge-warning' : 'badge-success'">
+          {{ resourceKPIs.rotationRate > 20 ? 'Élevé' : resourceKPIs.rotationRate > 10 ? 'Modéré' : 'Normal' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Workforce Charts -->
+    <div class="grid grid-cols-1 gap-lg mb-xl">
+      <!-- Cost by Qualification -->
+      <div class="chart-container">
+        <div class="chart-title">💰 Coût Total par Qualification</div>
+        <ngx-charts-bar-vertical
+          [view]="view"
+          [results]="costByQualificationData"
+          [xAxis]="showXAxis"
+          [yAxis]="showYAxis"
+          [legend]="false"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          [xAxisLabel]="'Qualification'"
+          [yAxisLabel]="'Coût Total (€)'"
+          [scheme]="colorScheme"
+          [gradient]="true"
+          [roundEdges]="true">
+        </ngx-charts-bar-vertical>
+      </div>
+
+      <!-- Experience Distribution -->
+      <div class="chart-container">
+        <div class="chart-title">📈 Distribution par Niveau d'Expérience</div>
+        <ngx-charts-bar-vertical
+          [view]="view"
+          [results]="experienceDistributionData"
+          [xAxis]="showXAxis"
+          [yAxis]="showYAxis"
+          [legend]="false"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          [xAxisLabel]="'Niveau d\'Expérience'"
+          [yAxisLabel]="'Nombre d\'Employés'"
+          [scheme]="colorScheme"
+          [gradient]="true"
+          [roundEdges]="true">
+        </ngx-charts-bar-vertical>
+      </div>
+    </div>
+
+    <!-- ========== SUPPLY CHAIN SECTION ========== -->
+    <div class="section-header mb-lg mt-2xl">
+      <span class="section-icon">🔧</span>
+      <h3 class="section-title">Supply Chain (PLM)</h3>
+    </div>
+
+    <!-- Supply Chain KPIs -->
+    <div class="kpi-header grid grid-cols-4 mb-xl">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Pièces</div>
+        <div class="kpi-value">{{ supplyChainKPIs.totalParts }}</div>
+        <div class="text-muted" style="font-size: 0.875rem;">composants</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Coût Approvisionnement</div>
+        <div class="kpi-value">{{ formatCurrency(supplyChainKPIs.totalProcurementCost) }}</div>
+        <div class="text-muted" style="font-size: 0.875rem;">total</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Délai Moyen</div>
+        <div class="kpi-value">{{ supplyChainKPIs.avgLeadTime.toFixed(1) }}</div>
+        <div class="text-muted" style="font-size: 0.875rem;">jours</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Pièces Critiques</div>
+        <div class="kpi-value">{{ supplyChainKPIs.criticalPartsCount }}</div>
+        <div class="badge badge-error">Attention</div>
+      </div>
+    </div>
+
+    <!-- Supply Chain Charts -->
+    <div class="grid grid-cols-1 gap-lg mb-xl">
+      <!-- Supplier Distribution -->
+      <div class="chart-container">
+        <div class="chart-title">🏭 Répartition par Fournisseur (Top 10)</div>
+        <ngx-charts-bar-vertical
+          [view]="view"
+          [results]="supplierDistributionData"
+          [xAxis]="showXAxis"
+          [yAxis]="showYAxis"
+          [legend]="false"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          [xAxisLabel]="'Fournisseur'"
+          [yAxisLabel]="'Nombre de Pièces'"
+          [scheme]="colorScheme"
+          [gradient]="true"
+          [roundEdges]="true">
+        </ngx-charts-bar-vertical>
+      </div>
+
+      <!-- Criticality Distribution -->
+      <div class="chart-container">
+        <div class="chart-title">⚠️ Distribution par Niveau de Criticité</div>
+        <ngx-charts-bar-vertical
+          [view]="view"
+          [results]="criticalityDistributionData"
+          [xAxis]="showXAxis"
+          [yAxis]="showYAxis"
+          [legend]="false"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          [xAxisLabel]="'Niveau de Criticité'"
+          [yAxisLabel]="'Nombre de Pièces'"
+          [scheme]="colorScheme"
+          [gradient]="true"
+          [roundEdges]="true">
+        </ngx-charts-bar-vertical>
+      </div>
+    </div>
+
+    <!-- Key Insights Card -->
+    <div class="card insights-card">
+      <div class="card-header">
+        <span>💡 Insights Clés</span>
+      </div>
+      <div class="card-body">
+        <div class="grid grid-cols-2 gap-lg">
+          <div class="insight-item">
+            <div class="insight-icon">👥</div>
+            <div class="insight-content">
+              <strong>Coût RH Total</strong>
+              <p>{{ formatCurrency(resourceKPIs.totalLaborCost) }} de masse salariale totale</p>
+            </div>
+          </div>
+          <div class="insight-item">
+            <div class="insight-icon">⏱️</div>
+            <div class="insight-content">
+              <strong>Temps CAO Total</strong>
+              <p>{{ formatNumber(supplyChainKPIs.totalCAOTime) }}h investies en conception</p>
+            </div>
+          </div>
+          <div class="insight-item">
+            <div class="insight-icon">⚖️</div>
+            <div class="insight-content">
+              <strong>Masse Totale</strong>
+              <p>{{ formatNumber(supplyChainKPIs.totalWeight) }}kg de composants</p>
+            </div>
+          </div>
+          <div class="insight-item">
+            <div class="insight-icon">📊</div>
+            <div class="insight-content">
+              <strong>Criticité Moyenne</strong>
+              <p>{{ supplyChainKPIs.avgCriticality.toFixed(2) }}/5 - Surveillance requise</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Source Info -->
+    <div class="card mt-xl" style="background: rgba(59, 130, 246, 0.1); border-color: var(--primary-blue-light);">
+      <div class="flex items-center gap-md">
+        <span style="font-size: 2rem;">📁</span>
+        <div>
+          <strong style="color: var(--primary-blue-light);">Sources de Données</strong>
+          <p class="text-muted" style="font-size: 0.875rem; margin-top: 0.25rem;">
+            RH: ERP_Equipes Airplus.xlsx ({{ resourceKPIs.totalEmployees }} employés) •
+            Supply Chain: PLM_DataSet.xlsx ({{ supplyChainKPIs.totalParts }} pièces)
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
