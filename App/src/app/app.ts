@@ -8,8 +8,9 @@ import { DataUploadTabComponent } from './data-upload-tab/data-upload';
 import { TestBackendComponent } from './test-backend/test-backend.component';
 import { PythonOverviewComponent } from './python-overview/python-overview.component';
 import { PythonInsightsComponent } from './python-insights/python-insights.component';
+import { EventLogComponent } from './event-log/event-log.component';
 
-type RouteType = 'overview' | 'analytics' | 'insights' | 'data' | 'test' | 'python-overview' | 'python-insights';
+type RouteType = 'overview' | 'analytics' | 'insights' | 'data' | 'test' | 'python-overview' | 'python-insights' | 'event-log';
 
 @Component({
   selector: 'app-root',
@@ -23,7 +24,8 @@ type RouteType = 'overview' | 'analytics' | 'insights' | 'data' | 'test' | 'pyth
     DataUploadTabComponent,
     TestBackendComponent,
     PythonOverviewComponent,
-    PythonInsightsComponent
+    PythonInsightsComponent,
+    EventLogComponent
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css']

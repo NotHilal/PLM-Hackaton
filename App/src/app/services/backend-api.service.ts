@@ -158,6 +158,33 @@ export class BackendApiService {
     );
   }
 
+  // ==================== EVENT LOG ENDPOINTS ====================
+
+  /**
+   * Get structured event log (case_id, activity, timestamps, station_id, result, rework_flag)
+   */
+  getEventLog(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/v2/event-log`).pipe(
+      shareReplay(1)
+    );
+  }
+
+  /**
+   * Get process metrics calculated from event log
+   */
+  getEventLogMetrics(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/v2/event-log/metrics`).pipe(
+      shareReplay(1)
+    );
+  }
+
+  /**
+   * Download event log as CSV
+   */
+  downloadEventLogCSV(): void {
+    window.open(`${this.baseUrl}/v2/event-log/export`, '_blank');
+  }
+
   // ==================== UTILITY METHODS ====================
 
   /**

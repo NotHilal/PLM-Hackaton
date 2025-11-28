@@ -37,6 +37,13 @@
           <span class="nav-icon">🤖</span>
           <span class="nav-label">AI Insights</span>
         </a>
+        <a
+          class="nav-item"
+          [class.active]="activeRoute === 'event-log'"
+          (click)="navigate('event-log')">
+          <span class="nav-icon">📋</span>
+          <span class="nav-label">Event Log</span>
+        </a>
 
         <!-- Optionnel: TypeScript versions (cachées par défaut) -->
         <!-- Décommenter si besoin de comparer
@@ -87,6 +94,7 @@
       <app-analytics-tab *ngIf="activeRoute === 'analytics'"></app-analytics-tab>
       <app-insights-tab *ngIf="activeRoute === 'insights'"></app-insights-tab>
       <app-python-insights *ngIf="activeRoute === 'python-insights'"></app-python-insights>
+      <app-event-log *ngIf="activeRoute === 'event-log'"></app-event-log>
       <app-data-upload-tab *ngIf="activeRoute === 'data'"></app-data-upload-tab>
       <app-test-backend *ngIf="activeRoute === 'test'"></app-test-backend>
     </main>

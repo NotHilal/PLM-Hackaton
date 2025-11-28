@@ -1,0 +1,218 @@
+<div class="event-log-container">
+  <!-- Header -->
+  <div class="page-header mb-xl">
+    <div class="header-content">
+      <h2 class="page-title">📋 Event Log - Process Mining</h2>
+      <p class="page-subtitle">Journal structuré des événements de fabrication</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="downloadCSV()">
+        📥 Télécharger CSV
+      </button>
+      <button class="btn btn-secondary" (click)="refresh()" [disabled]="loading">
+        {{ loading ? '⌛ Chargement...' : '🔄 Actualiser' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Chargement de l'event log...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !loading" class="card error-card mb-lg">
+    <h3>❌ Erreur</h3>
+    <p>{{ error }}</p>
+    <button class="btn btn-primary mt-md" (click)="refresh()">Réessayer</button>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading && !error">
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-3 mb-xl">
+      <div class="card stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-content">
+          <div class="stat-label">Total Events</div>
+          <div class="stat-value">{{ totalEvents }}</div>
+        </div>
+      </div>
+
+      <div class="card stat-card">
+        <div class="stat-icon">🔢</div>
+        <div class="stat-content">
+          <div class="stat-label">Unique Cases</div>
+          <div class="stat-value">{{ uniqueCases }}</div>
+        </div>
+      </div>
+
+      <div class="card stat-card">
+        <div class="stat-icon">⚙️</div>
+        <div class="stat-content">
+          <div class="stat-label">Operations</div>
+          <div class="stat-value">{{ uniqueActivities.length }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics Section -->
+    <div class="card mb-xl" *ngIf="metrics">
+      <div class="card-header">
+        <span class="icon">📈</span>
+        Métriques du Process Mining
+      </div>
+      <div class="card-body">
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <span class="metric-label">Cases Totaux:</span>
+            <span class="metric-value">{{ metrics.total_cases }}</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Lead Time Moyen:</span>
+            <span class="metric-value">{{ formatDuration(metrics.avg_lead_time_hours) }}</span>
+          </div>
+        </div>
+
+        <h4 class="mt-lg mb-md">Volume par Opération</h4>
+        <div class="volume-grid">
+          <div *ngFor="let item of metrics.volume_by_operation | keyvalue" class="volume-item">
+            <span class="volume-operation">{{ item.key }}</span>
+            <span class="volume-count">{{ item.value }} cas</span>
+          </div>
+        </div>
+
+        <h4 class="mt-lg mb-md">Taux de Reprise</h4>
+        <div class="rework-grid">
+          <div *ngFor="let item of metrics.rework_rate_by_operation | keyvalue" class="rework-item">
+            <span class="rework-operation">{{ item.key }}</span>
+            <span class="rework-rate" [ngClass]="item.value > 10 ? 'high' : item.value > 5 ? 'medium' : 'low'">
+              {{ item.value.toFixed(1) }}%
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-lg">
+      <div class="card-header">
+        <span class="icon">🔍</span>
+        Filtres
+      </div>
+      <div class="card-body">
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label>Opération:</label>
+            <select [(ngModel)]="selectedActivity" (change)="currentPage = 1" [ngModelOptions]="{standalone: true}">
+              <option [value]="null">Toutes</option>
+              <option *ngFor="let activity of uniqueActivities" [value]="activity">{{ activity }}</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Résultat:</label>
+            <select [(ngModel)]="selectedResult" (change)="currentPage = 1" [ngModelOptions]="{standalone: true}">
+              <option [value]="null">Tous</option>
+              <option value="Success">Succès</option>
+              <option value="Failure">Échec</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>
+              <input type="checkbox" [(ngModel)]="showReworkOnly" (change)="currentPage = 1" [ngModelOptions]="{standalone: true}">
+              Reprise uniquement
+            </label>
+          </div>
+
+          <div class="filter-group">
+            <button class="btn btn-secondary" (click)="resetFilters()">Réinitialiser</button>
+          </div>
+        </div>
+        <p class="filter-info mt-md">
+          Affichage: {{ filteredEventLog.length }} événements
+        </p>
+      </div>
+    </div>
+
+    <!-- Event Log Table -->
+    <div class="card">
+      <div class="card-header">
+        <span class="icon">📋</span>
+        Event Log ({{ filteredEventLog.length }} événements)
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="event-table">
+            <thead>
+              <tr>
+                <th>Case ID</th>
+                <th>Opération</th>
+                <th>Station</th>
+                <th>Début</th>
+                <th>Fin</th>
+                <th>Durée</th>
+                <th>Résultat</th>
+                <th>Reprise</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let event of paginatedEventLog">
+                <td><code>{{ event.case_id }}</code></td>
+                <td><strong>{{ event.activity }}</strong></td>
+                <td><span class="badge badge-info">{{ event.station_id }}</span></td>
+                <td>{{ formatTimestamp(event.timestamp_start) }}</td>
+                <td>{{ formatTimestamp(event.timestamp_end) }}</td>
+                <td>{{ formatDuration(event.duration_hours) }}</td>
+                <td><span class="badge" [ngClass]="getResultClass(event.result)">{{ event.result }}</span></td>
+                <td>
+                  <span *ngIf="event.rework_flag" class="badge badge-warning">⚠️ Oui</span>
+                  <span *ngIf="!event.rework_flag" class="badge badge-success">✓ Non</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination mt-lg">
+          <button class="btn btn-secondary" (click)="prevPage()" [disabled]="currentPage === 1">
+            ← Précédent
+          </button>
+          <span class="page-info">
+            Page {{ currentPage }} / {{ totalPages }}
+          </span>
+          <button class="btn btn-secondary" (click)="nextPage()" [disabled]="currentPage === totalPages">
+            Suivant →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event Log Structure Info -->
+    <div class="card mt-xl">
+      <div class="card-header">
+        <span class="icon">📖</span>
+        Structure de l'Event Log (Hackathon Requirement #2)
+      </div>
+      <div class="card-body">
+        <p class="mb-md"><strong>Format conforme aux exigences du hackathon:</strong></p>
+        <ul class="structure-list">
+          <li><code>case_id</code> - Identifiant unique du cas de fabrication</li>
+          <li><code>activity/operation</code> - Nom de l'opération (Découpe, Perçage, etc.)</li>
+          <li><code>timestamp_start</code> - Heure de début de l'activité</li>
+          <li><code>timestamp_end</code> - Heure de fin de l'activité</li>
+          <li><code>station_id</code> - Identifiant du poste de travail</li>
+          <li><code>result</code> - Résultat (Success / Failure)</li>
+          <li><code>rework_flag</code> - Indicateur de reprise (booléen)</li>
+          <li><code>duration_hours</code> - Durée calculée en heures</li>
+        </ul>
+        <p class="mt-md text-muted">
+          💡 Cet event log peut être exporté en CSV et utilisé avec des outils de process mining externes (PM4Py, ProM, etc.)
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

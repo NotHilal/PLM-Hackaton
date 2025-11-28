@@ -1,10 +1,11 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import os
 from kpi_calculator import KPICalculator
+from event_log_generator import EventLogGenerator
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for Angular frontend
@@ -242,6 +243,65 @@ def list_endpoints():
             })
 
     return jsonify(endpoints), 200
+
+
+# ==================== EVENT LOG ENDPOINTS (HACKATHON REQUIREMENT #2) ====================
+
+@app.route('/api/v2/event-log', methods=['GET'])
+def get_event_log():
+    """Get structured event log (case_id, activity, timestamps, station_id, result, rework_flag)"""
+    try:
+        event_gen = EventLogGenerator(mes_data)
+        event_log = event_gen.generate_event_log()
+
+        # Convert to JSON-serializable format
+        event_log_dict = event_log.to_dict('records')
+
+        # Convert timestamps to ISO format
+        for event in event_log_dict:
+            if 'timestamp_start' in event:
+                event['timestamp_start'] = event['timestamp_start'].isoformat()
+            if 'timestamp_end' in event:
+                event['timestamp_end'] = event['timestamp_end'].isoformat()
+
+        return jsonify({
+            'event_log': event_log_dict,
+            'total_events': len(event_log_dict),
+            'unique_cases': event_log['case_id'].nunique() if len(event_log) > 0 else 0
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v2/event-log/metrics', methods=['GET'])
+def get_event_log_metrics():
+    """Get process metrics calculated from event log"""
+    try:
+        event_gen = EventLogGenerator(mes_data)
+        event_log = event_gen.generate_event_log()
+        metrics = event_gen.calculate_process_metrics(event_log)
+
+        return jsonify(metrics), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v2/event-log/export', methods=['GET'])
+def export_event_log():
+    """Export event log as CSV for process mining tools"""
+    try:
+        event_gen = EventLogGenerator(mes_data)
+        event_log = event_gen.generate_event_log()
+
+        filepath = 'event_log_export.csv'
+        event_gen.export_to_csv(event_log, filepath)
+
+        return send_file(filepath,
+                        mimetype='text/csv',
+                        as_attachment=True,
+                        download_name='manufacturing_event_log.csv')
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':
